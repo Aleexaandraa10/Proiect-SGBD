@@ -1,0 +1,2018 @@
+----------------------------------  CREAREA TABELELOR ----------------------------------------
+CREATE TABLE oras(
+cod_oras number(3) constraint pk_oras primary key,
+prefix_judet varchar2(3) not null,
+nume_oras varchar2(30)   not null);
+
+
+CREATE TABLE adresa (
+cod_adresa number(3) constraint pk_adresa primary key,
+cod_oras number(3),
+nume_strada varchar2(30) not null,
+constraint fk_oras foreign key(cod_oras) references ORAS(cod_oras));
+
+
+CREATE TABLE cinematograf(
+cod_cinematograf varchar2(3) constraint pk_cinema primary key,
+cod_adresa number(3),
+nume_cinema varchar2(30) not null,
+nume_companie varchar2(30) not null,
+numar_sali number(3) not null,
+constraint fk_adresa foreign key(cod_adresa) references ADRESA(cod_adresa));
+
+
+CREATE TABLE departamente(
+cod_departament varchar2(3) constraint pk_dep primary key,
+nume_departament varchar2(30) not null);
+
+
+CREATE TABLE joburi(
+cod_job  varchar2(3) constraint pk_job primary key,
+nume_job varchar2(30) not null,
+salariu_minim number(6) not null,
+salariu_maxim number(6) not null,
+nivel_exp_necesar varchar2(30));
+
+
+
+CREATE TABLE angajati(
+cod_angajat varchar2(3) constraint pk_angajat primary key,
+cod_job varchar2(3),
+cod_departament varchar2(3),
+cod_cinematograf varchar2(3),
+nume_angajat varchar2(30) not null,
+prenume_angajat varchar2(30) not null,
+salariu_angajat number(6) not null,
+data_angajare date,
+status_angajat varchar2(30),
+constraint fk_job foreign key(cod_job) references JOBURI(cod_job),
+constraint fk_dep foreign key(cod_departament) references DEPARTAMENTE(cod_departament),
+constraint fk_cinema foreign key (cod_cinematograf) references CINEMATOGRAF(cod_cinematograf)
+);
+
+
+CREATE TABLE film(
+cod_film varchar2(3) constraint pk_film primary key,
+nume_film varchar2(30) not null,
+varsta_recomandata number(2) not null,
+an_aparitie number(4),
+gen_film varchar2(30) not null,
+nume_regizor varchar2(30),
+tara_productie varchar2(30));
+
+
+CREATE TYPE per_dif AS OBJECT (
+    data_difuzare date,
+    ora_inceput date, 
+    ora_final date
+);
+/
+
+CREATE TYPE lista_perioade AS TABLE OF per_dif;
+/
+
+CREATE TABLE difuzeaza(
+cod_cinematograf varchar2(3) references CINEMATOGRAF(cod_cinematograf),
+cod_film varchar2(3) references FILM(cod_film),
+perioade_difuzare lista_perioade,
+subtitrari varchar2(30),
+durata_film number(3),
+constraint pk_difuzare primary key (cod_cinematograf, cod_film)
+) NESTED TABLE perioade_difuzare STORE AS perioade_difuzare_tab;
+
+
+
+CREATE TABLE clienti(
+cod_client number(2) constraint pk_client primary key,
+nume_client varchar2(30) not null,
+prenume_client varchar2(30) not null,
+puncte_bonus number(5) );
+
+
+CREATE TABLE recenzie(
+cod_recenzie varchar(3) constraint pk_recenzie primary key,
+cod_film varchar2(3),
+cod_client number(2),
+scor number(2),
+data_recenzie date,
+constraint fk_film_recenzie foreign key(cod_film) references FILM(cod_film),
+constraint fk_client foreign key(cod_client) references CLIENTI(cod_client));
+
+
+CREATE TABLE rezervare(
+cod_film varchar2(3) references FILM(cod_film),
+cod_client number(2) references CLIENTI(cod_client),
+pret_bilet number(3) not null,
+numar_persoane number(2) not null,
+format_proiectie varchar2(5) not null,
+numar_sala number(3) not null,
+metoda_plata varchar2(30) not null,
+constraint pk_rezervare primary key (cod_film, cod_client));
+
+
+----------------------------------  INSERAREA DATELOR IN TABELE ----------------------------------------
+
+INSERT INTO oras VALUES (50, 'BV', 'Predeal');
+INSERT INTO oras VALUES (51, 'CJ', 'Cluj-Napoca');
+INSERT INTO oras VALUES (52, 'GJ', 'Targu Jiu');
+INSERT INTO oras VALUES (53, 'IS', 'Pascani');
+INSERT INTO oras VALUES (54, 'IS', 'Targu Frumos');
+INSERT INTO oras VALUES (55, 'IF', 'Buftea');
+INSERT INTO oras VALUES (56, 'IF', 'Chitila');
+INSERT INTO oras VALUES (57, 'MS', 'Sighisoara');
+INSERT INTO oras VALUES (58, 'TM', 'Timisoara');
+INSERT INTO oras VALUES (59, 'VS', 'Vaslui');
+
+
+INSERT INTO adresa VALUES (10, 50, 'Strada Predeal');
+INSERT INTO adresa VALUES (11, 51, 'Strada Unirii');
+INSERT INTO adresa VALUES (12, 52, 'Strada Victoriei');
+INSERT INTO adresa VALUES (13, 53, 'Strada Garii');
+INSERT INTO adresa VALUES (14, 54, 'Strada Horea');
+INSERT INTO adresa VALUES (15, 55, 'Strada 1 Decembrie');
+INSERT INTO adresa VALUES (16, 56, 'Strada Principala');
+INSERT INTO adresa VALUES (17, 57, 'Strada Cetatii');
+INSERT INTO adresa VALUES (18, 58, 'Strada Banatului');
+INSERT INTO adresa VALUES (19, 59, 'Strada Marasesti');
+
+
+INSERT INTO cinematograf VALUES ('C1', 10, 'Cinema Park', 'BV Cinemas', 6);
+INSERT INTO cinematograf VALUES ('C2', 11, 'Cinema Cotroceni', 'CJ Cinemas', 5);
+INSERT INTO cinematograf VALUES ('C3', 12, 'Cinema Victoriei', 'GJ Cinemas', 8);
+INSERT INTO cinematograf VALUES ('C4', 13, 'Cinema Garii', 'IS Cinemas', 4);
+INSERT INTO cinematograf VALUES ('C5', 14, 'Cinema Luceafarul', 'IS Cinemas', 7);
+INSERT INTO cinematograf VALUES ('C6', 15, 'Cinema Grand', 'IF Cinemas', 5);
+INSERT INTO cinematograf VALUES ('C7', 16, 'Cinema Aurora', 'IF Cinemas', 6);
+INSERT INTO cinematograf VALUES ('C8', 17, 'Cinema Gloria', 'MS Cinemas', 5);
+INSERT INTO cinematograf VALUES ('C9', 18, 'Cinema Star', 'TM Cinemas', 5);
+INSERT INTO cinematograf VALUES ('C10', 19, 'Cinema Tomis', 'VS Cinemas', 6);
+
+
+INSERT INTO departamente VALUES ('D1', 'IT Support');
+INSERT INTO departamente VALUES ('D2', 'Marketing');
+INSERT INTO departamente VALUES ('D3', 'Resurse Umane');
+INSERT INTO departamente VALUES ('D4', 'Logistica');
+INSERT INTO departamente VALUES ('D5', 'Supraveghere');
+INSERT INTO departamente VALUES ('D6', 'Tehnic');
+INSERT INTO departamente VALUES ('D7', 'Vanzari');
+INSERT INTO departamente VALUES ('D8', 'Curatenie');
+INSERT INTO departamente VALUES ('D9', 'Siguranta si Protectie');
+
+
+INSERT INTO joburi VALUES ('J1', 'Administrator IT', 4000, 7000, 'Mediu');
+INSERT INTO joburi VALUES ('J2', 'Specialist Marketing', 3500, 6000, 'Mediu');
+INSERT INTO joburi VALUES ('J3', 'Manager Resurse Umane', 5000, 9000, 'Avansat');
+INSERT INTO joburi VALUES ('J4', 'Coordonator Logistica', 4000, 7500, 'Mediu');
+INSERT INTO joburi VALUES ('J5', 'Supraveghetor Sali', 2500, 4000, 'Incepator');
+INSERT INTO joburi VALUES ('J6', 'Tehnician Echipamente', 3000, 5500, 'Avansat');
+INSERT INTO joburi VALUES ('J7', 'Casier', 2000, 3500, 'Incepator');
+INSERT INTO joburi VALUES ('J8', 'Personal Curatenie', 1800, 3000, 'Incepator');
+INSERT INTO joburi VALUES ('J9', 'Agent de Securitate', 2500, 4500, 'Mediu');
+INSERT INTO joburi VALUES ('J10', 'Proiectionist', 3000, 5000, 'Mediu');
+INSERT INTO joburi VALUES ('J11', 'Coordonator Evenimente', 4000, 6500, 'Mediu');
+INSERT INTO joburi VALUES ('J12', 'Consultant Vanzari', 2200, 4000, 'Incepator');
+
+
+INSERT INTO angajati VALUES ('A1', 'J1', 'D1', 'C1','Alexandrescu', 'Andra', 4500, TO_DATE('16-JAN-23', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A2', 'J2', 'D2', 'C1','Roman', 'Cristina', 4500, TO_DATE('20-FEB-23', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A3', 'J3', 'D3', 'C3','Pop', 'Ioana', 5500, TO_DATE('25-MAR-23', 'DD-MON-YY'),'In concediu');
+INSERT INTO angajati VALUES ('A4', 'J4', 'D4', 'C4','Georgiu', 'Ana', 4050, TO_DATE('30-APR-23', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A5', 'J5', 'D5', 'C1','Moldovan', 'Roxana', 3200, TO_DATE('02-MAY-23', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A6', 'J6', 'D6', 'C6','David', 'Andreea', 3150, TO_DATE('03-JUN-23', 'DD-MON-YY'),'Suspendat');
+INSERT INTO angajati VALUES ('A7', 'J7', 'D7', 'C7','Iacob', 'Andrei', 2300, TO_DATE('18-JUL-19', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A8', 'J1', 'D1', 'C9','Vlonga', 'Stefan', 6000, TO_DATE('20-AUG-23', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A9', 'J2', 'D2', 'C10','Durlesteanu', 'Victor', 4000, TO_DATE('25-SEP-23', 'DD-MON-YY'),'In concediu');
+INSERT INTO angajati VALUES ('A10', 'J3', 'D3', 'C1','Bechea', 'Flavia', 5000, TO_DATE('24-OCT-19', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A11', 'J4', 'D4', 'C2','Racovita', 'Cristina', 6100, TO_DATE('05-NOV-21', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A12', 'J5', 'D5', 'C3','Igescu', 'Rares', 3200, TO_DATE('13-DEC-23', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A13', 'J6', 'D6', 'C4','Chirila', 'Bianca', 3300, TO_DATE('15-JAN-18', 'DD-MON-YY'),'Suspendat');
+INSERT INTO angajati VALUES ('A14', 'J7', 'D7', 'C5','Blaj', 'Deea', 2400, TO_DATE('20-FEB-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A15', 'J8', 'D8', 'C6','Buimac', 'Delia', 2800, TO_DATE('25-MAR-20', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A16', 'J9', 'D9', 'C7','Mihalache', 'Diana', 4100, TO_DATE('30-APR-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A17', 'J10', 'D6', 'C8','Nechita', 'Teodora', 3600, TO_DATE('05-MAY-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A18', 'J4', 'D4', 'C2','Popica', 'Tudor', 4050, TO_DATE('19-JUN-23', 'DD-MON-YY'),'In concediu');
+INSERT INTO angajati VALUES ('A19', 'J5', 'D5', 'C10','Florea', 'Bianca', 3300, TO_DATE('15-JUL-20', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A20', 'J11', 'D3', 'C1','Munteanu', 'Andrada', 6400, TO_DATE('27-AUG-22', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A21', 'J8', 'D8', 'C2','Salcianu', 'Stefan', 2700, TO_DATE('10-SEP-23', 'DD-MON-YY'),'In concediu');
+INSERT INTO angajati VALUES ('A22', 'J12', 'D7', 'C3','Monceanu', 'Valentina', 2600, TO_DATE('15-AUG-22', 'DD-MON-YY'),'Suspendat');
+INSERT INTO angajati VALUES ('A23', 'J8', 'D8', 'C4','Andruta', 'Andra', 2900, TO_DATE('27-JUL-20', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A24', 'J9', 'D9', 'C9','Tanislav', 'Alexia', 2650, TO_DATE('08-JUN-21', 'DD-MON-YY'),'In concediu');
+INSERT INTO angajati VALUES ('A25', 'J10', 'D6', 'C6','Velcea', 'Mihnea', 3400, TO_DATE('01-SEP-23', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A26', 'J10', 'D6', 'C10','Lupu', 'Andrei', 5000, TO_DATE('12-OCT-23', 'DD-MON-YY'),'Suspendat');
+INSERT INTO angajati VALUES ('A27', 'J11', 'D3', 'C8','Ciorita', 'Alexandra', 6500, TO_DATE('19-SEP-24', 'DD-MON-YY'),'In concediu');
+
+
+INSERT INTO film VALUES('F1', 'Titanic', 18, 1995, 'Dragoste', 'James Cameron', 'SUA');
+INSERT INTO film VALUES('F2', 'Inception', 12, 2010, 'Science Fiction', 'Christopher Nolan', 'SUA');
+INSERT INTO film VALUES('F3', 'Parasite', 16, 2019, 'Thriller', 'Bong Joon-ho', 'Coreea de Sud');
+INSERT INTO film VALUES('F4', 'The Godfather', 18, 1972, 'Drama', 'Francis Ford Coppola', 'SUA');
+INSERT INTO film VALUES('F5', 'Interstellar', 12, 2014, 'Science Fiction', 'Christopher Nolan', 'SUA');
+INSERT INTO film VALUES('F6', 'The Shawshank Redemption', 15, 1994, 'Drama', 'Frank Darabont', 'SUA');
+INSERT INTO film VALUES('F7', 'Pulp Fiction', 18, 1994, 'Crima', 'Quentin Tarantino', 'SUA');
+INSERT INTO film VALUES('F8', 'La La Land', 12, 2016, 'Musical', 'Damien Chazelle', 'SUA');
+INSERT INTO film VALUES('F9', 'Avengers: Endgame', 13, 2019, 'Actiune', 'Anthony Russo', 'SUA');
+INSERT INTO film VALUES('F10', 'Joker', 15, 2019, 'Drama', 'Todd Phillips', 'SUA');
+INSERT INTO film VALUES('F11', 'The Dark Knight', 13, 2008, 'Supereroi', 'Christopher Nolan', 'SUA');
+INSERT INTO film VALUES('F12', 'Spirited Away', 10, 2001, 'Animatie', 'Hayao Miyazaki', 'Japonia');
+INSERT INTO film VALUES('F13', 'The Matrix', 16, 1999, 'Science Fiction', 'Lana Wachowski', 'SUA');
+INSERT INTO film VALUES('F14', 'Schindler s List', 15, 1993, 'Istoric', 'Steven Spielberg', 'SUA');
+INSERT INTO film VALUES('F15', 'Forrest Gump', 12, 1994, 'Drama', 'Robert Zemeckis', 'SUA');
+INSERT INTO film VALUES('F16', 'Gladiator', 15, 2000, 'Istoric', 'Ridley Scott', 'SUA');
+INSERT INTO film VALUES('F17', 'The Lion King', 6, 1994, 'Animatie', 'Rob Minkoff', 'SUA');
+INSERT INTO film VALUES('F18', 'Crouching Tiger, Hidden Dragon', 12, 2000, 'Actiune', 'Ang Lee', 'China');
+INSERT INTO film VALUES('F19', 'The Grand Budapest Hotel', 12, 2014, 'Comedie', 'Wes Anderson', 'SUA');
+INSERT INTO film VALUES('F20', 'Black Panther', 13, 2018, 'Supereroi', 'Ryan Coogler', 'SUA');
+INSERT INTO film VALUES('F21', 'A Separation', 12, 2011, 'Drama', 'Asghar Farhadi', 'Iran');
+INSERT INTO film VALUES('F22', 'Life is Beautiful', 10, 1997, 'Drama', 'Roberto Benigni', 'Italia');
+INSERT INTO film VALUES('F23', 'Pan s Labyrinth', 15, 2006, 'Fantezie', 'Guillermo del Toro', 'Spania');
+INSERT INTO film VALUES('F24', 'The Revenant', 16, 2015, 'Aventura', 'Alejandro González Iñárritu', 'SUA');
+INSERT INTO film VALUES('F25', 'Amélie', 12, 2001, 'Comedie Romantica', 'Jean-Pierre Jeunet', 'Franta');
+
+
+
+INSERT INTO clienti VALUES(1, 'Popescu', 'Ion', 125);
+INSERT INTO clienti VALUES(2, 'Ioanitoaiei', 'Maria', 145);
+INSERT INTO clienti VALUES(3, 'Georgian', 'Andrei', 190);
+INSERT INTO clienti VALUES(4, 'Marin', 'Ana', 110);
+INSERT INTO clienti VALUES(5, 'Dumitru', 'Mihai', 175);
+INSERT INTO clienti VALUES(6, 'Jalba', 'Elena', 102);
+INSERT INTO clienti VALUES(7, 'Popa', 'Florin', 215);
+INSERT INTO clienti VALUES(8, 'Stan', 'Ioana', 185);
+INSERT INTO clienti VALUES(9, 'Diaconu', 'Cristian', 198);
+INSERT INTO clienti VALUES(10, 'Radu', 'Vasile', 135);
+INSERT INTO clienti VALUES(11, 'Tudor', 'Monica', 230);
+INSERT INTO clienti VALUES(12, 'Dobre', 'Adrian', 140);
+INSERT INTO clienti VALUES(13, 'Luca', 'Simona', 155);
+INSERT INTO clienti VALUES(14, 'Gheorghe', 'Roxana', 205);
+INSERT INTO clienti VALUES(15, 'Nistor', 'Daniel', 180);
+INSERT INTO clienti VALUES(16, 'Anghel', 'Alexandra', 145);
+INSERT INTO clienti VALUES(17, 'Voicu', 'Alin', 125);
+INSERT INTO clienti VALUES(18, 'Petrescu', 'Marian', 192);
+INSERT INTO clienti VALUES(19, 'Ciobanu', 'Bianca', 137);
+INSERT INTO clienti VALUES(20, 'Gavrila', 'Robert', 210);
+INSERT INTO clienti VALUES(21, 'Racovita', 'Mihaela', 10);
+INSERT INTO clienti VALUES(22, 'Popescu', 'Radu', 230);
+
+
+INSERT INTO recenzie VALUES ('R1', 'F1', 1, 8, TO_DATE('2024-01-15', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R2', 'F2', 2, 9, TO_DATE('2024-06-20', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R3', 'F3', 3, 7, TO_DATE('2024-01-22', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R4', 'F5', 5, 8, TO_DATE('2024-01-28', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R5', 'F8', 2, 7, TO_DATE('2024-10-05', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R6', 'F9', 6, 8, TO_DATE('2024-02-07', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R7', 'F10', 7, 9, TO_DATE('2024-02-10', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R8', 'F11', 8, 10, TO_DATE('2024-12-12', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R9', 'F12', 9, 8, TO_DATE('2024-02-15', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R10', 'F13', 6, 7, TO_DATE('2024-04-18', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R11', 'F15', 9, 9, TO_DATE('2024-12-22', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R12', 'F15', 1, 9, TO_DATE('2024-01-25', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R13', 'F15', 20, 4, TO_DATE('2024-06-28', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R14', 'F16', 11, 3, TO_DATE('2024-09-01', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R15', 'F17', 12, 10, TO_DATE('2024-02-03', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R16', 'F18', 13, 4, TO_DATE('2024-03-05', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R17', 'F19', 14, 7, TO_DATE('2024-08-07', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R18', 'F20', 15, 5, TO_DATE('2024-03-10', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R19', 'F20', 15, 7, TO_DATE('2024-08-12', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R20', 'F16', 16, 8, TO_DATE('2024-09-15', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R21', 'F8', 17, 1, TO_DATE('2024-03-18', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R22', 'F10', 18, 1, TO_DATE('2024-12-20', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R23', 'F20', 19, 6, TO_DATE('2024-05-22', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R24', 'F4', 4, 9, TO_DATE('2024-10-15', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R25', 'F15', 15, 2, TO_DATE('2024-04-20', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R26', 'F11', 2, 9, TO_DATE('2024-03-02', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R27', 'F15', 5, 7, TO_DATE('2024-02-10', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R28', 'F17', 5, 8, TO_DATE('2024-01-04', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R29', 'F17', 10, 10, TO_DATE('2024-11-13', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R30', 'F19', 10, 6, TO_DATE('2024-12-16', 'YYYY-MM-DD'));
+INSERT INTO recenzie VALUES ('R31', 'F23', 1, 7, TO_DATE('2024-12-05', 'YYYY-MM-DD'));
+
+
+INSERT INTO rezervare VALUES ('F1', 1, 25, 1, '2D', 1, 'Card');
+INSERT INTO rezervare VALUES ('F2', 2, 35, 2, '3D', 2, 'Cash');
+INSERT INTO rezervare VALUES ('F3', 3, 50, 1, 'IMAX', 1, 'Card');
+INSERT INTO rezervare VALUES ('F4', 4, 25, 2, '2D', 2, 'Cash');
+INSERT INTO rezervare VALUES ('F5', 5, 35, 1, '3D', 3, 'Card');
+INSERT INTO rezervare VALUES ('F6', 6, 25, 1, '2D', 1, 'Cash');
+INSERT INTO rezervare VALUES ('F7', 7, 50, 2, 'IMAX', 1, 'Card');
+INSERT INTO rezervare VALUES ('F8', 8, 25, 1, '2D', 2, 'Cash');
+INSERT INTO rezervare VALUES ('F9', 9, 35, 2, '3D', 1, 'Card');
+INSERT INTO rezervare VALUES ('F10', 10, 25, 1, '2D', 1, 'Cash');
+INSERT INTO rezervare VALUES ('F11', 11, 50, 2, 'IMAX', 3, 'Card');
+INSERT INTO rezervare VALUES ('F12', 12, 35, 1, '3D', 2, 'Cash');
+INSERT INTO rezervare VALUES ('F13', 13, 25, 1, '2D', 1, 'Card');
+INSERT INTO rezervare VALUES ('F14', 14, 35, 1, '3D', 2, 'Cash');
+INSERT INTO rezervare VALUES ('F15', 15, 50, 2, 'IMAX', 1, 'Card');
+INSERT INTO rezervare VALUES ('F16', 16, 25, 1, '2D', 1, 'Cash');
+INSERT INTO rezervare VALUES ('F17', 17, 35, 1, '3D', 2, 'Card');
+INSERT INTO rezervare VALUES ('F18', 18, 50, 2, 'IMAX', 1, 'Cash');
+INSERT INTO rezervare VALUES ('F19', 19, 25, 1, '2D', 2, 'Card');
+INSERT INTO rezervare VALUES ('F20', 20, 35, 1, '3D', 3, 'Cash');
+INSERT INTO rezervare VALUES ('F20', 1, 25, 1, '2D', 2, 'Card');
+INSERT INTO rezervare VALUES ('F21', 1, 35, 1, '3D', 3, 'Cash');
+INSERT INTO rezervare VALUES ('F23', 1, 50, 1, 'IMAX', 2, 'Card');
+INSERT INTO rezervare VALUES ('F23', 21, 35, 3, '3D', 4, 'Card');
+INSERT INTO rezervare VALUES ('F10', 2, 25, 1, '2D', 2, 'Cash');
+INSERT INTO rezervare VALUES ('F11', 2, 50, 1, 'IMAX', 2, 'Card');
+INSERT INTO rezervare VALUES ('F15', 5, 35, 1, '3D', 3, 'Card');
+INSERT INTO rezervare VALUES ('F17', 5, 50, 2, 'IMAX', 3, 'Cash');
+INSERT INTO rezervare VALUES ('F17', 10, 25, 2, '2D', 2, 'Card');
+INSERT INTO rezervare VALUES ('F18', 10, 35, 2, '3D', 3, 'Cash');
+INSERT INTO rezervare VALUES ('F19', 10, 50, 1, 'IMAX', 1, 'Card');
+INSERT INTO rezervare VALUES ('F15', 22, 25, 4, '2D', 2, 'Cash');
+INSERT INTO rezervare VALUES ('F20', 22, 25, 4, '2D', 2, 'Card');
+
+
+INSERT INTO difuzeaza VALUES (
+    'C1', 'F1', 
+    lista_perioade(
+        per_dif(TO_DATE('17-06-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:00', 'HH24:MI')),
+        per_dif(TO_DATE('17-06-2024', 'DD-MM-YYYY'), TO_DATE('15:00', 'HH24:MI'), TO_DATE('17:30', 'HH24:MI')),
+        per_dif(TO_DATE('18-06-2024', 'DD-MM-YYYY'), TO_DATE('20:00', 'HH24:MI'), TO_DATE('22:30', 'HH24:MI'))),
+    'Romana',150);
+
+INSERT INTO difuzeaza VALUES (
+    'C1', 'F2', 
+    lista_perioade(
+        per_dif(TO_DATE('05-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:30', 'HH24:MI')),
+        per_dif(TO_DATE('05-12-2024', 'DD-MM-YYYY'), TO_DATE('21:00', 'HH24:MI'), TO_DATE('23:30', 'HH24:MI'))),
+    'Romana', 180);
+INSERT INTO difuzeaza VALUES (
+    'C1', 'F2', 
+    lista_perioade(
+        per_dif(TO_DATE('05-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:30', 'HH24:MI')),
+        per_dif(TO_DATE('05-12-2024', 'DD-MM-YYYY'), TO_DATE('21:00', 'HH24:MI'), TO_DATE('23:00', 'HH24:MI'))),
+    'Romana', 150);
+
+INSERT INTO difuzeaza VALUES (
+    'C2', 'F3', 
+    lista_perioade(
+        per_dif(TO_DATE('10-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:00', 'HH24:MI')),
+        per_dif(TO_DATE('12-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('18:30', 'HH24:MI')),
+        per_dif(TO_DATE('15-12-2024', 'DD-MM-YYYY'), TO_DATE('20:00', 'HH24:MI'), TO_DATE('22:30', 'HH24:MI'))),
+    'Engleza', 150);
+
+INSERT INTO difuzeaza VALUES (
+    'C2', 'F4', 
+    lista_perioade(
+        per_dif(TO_DATE('15-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:00', 'HH24:MI')),
+        per_dif(TO_DATE('16-12-2024', 'DD-MM-YYYY'), TO_DATE('14:00', 'HH24:MI'), TO_DATE('16:00', 'HH24:MI'))),
+    'Romana', 120);
+
+INSERT INTO difuzeaza VALUES (
+    'C3', 'F5', 
+    lista_perioade(
+        per_dif(TO_DATE('10-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:30', 'HH24:MI')),
+        per_dif(TO_DATE('03-12-2024', 'DD-MM-YYYY'), TO_DATE('17:00', 'HH24:MI'), TO_DATE('19:00', 'HH24:MI'))),
+    'Romana', 150);
+
+INSERT INTO difuzeaza VALUES (
+    'C4', 'F6', 
+    lista_perioade(
+        per_dif(TO_DATE('20-12-2024', 'DD-MM-YYYY'), TO_DATE('17:00', 'HH24:MI'), TO_DATE('19:00', 'HH24:MI')),
+        per_dif(TO_DATE('21-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:00', 'HH24:MI'))),
+    'Engleza', 120);
+    
+INSERT INTO difuzeaza VALUES (
+    'C5', 'F7', 
+    lista_perioade(
+        per_dif(TO_DATE('09-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('18:00', 'HH24:MI')),
+        per_dif(TO_DATE('02-12-2024', 'DD-MM-YYYY'), TO_DATE('19:00', 'HH24:MI'), TO_DATE('21:00', 'HH24:MI'))),
+    'Romana', 120);
+
+INSERT INTO difuzeaza VALUES (
+    'C6', 'F8', 
+    lista_perioade(
+        per_dif(TO_DATE('05-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('21:00', 'HH24:MI')),
+        per_dif(TO_DATE('06-12-2024', 'DD-MM-YYYY'), TO_DATE('17:30', 'HH24:MI'), TO_DATE('20:00', 'HH24:MI'))),
+    'Romana', 150);
+
+INSERT INTO difuzeaza VALUES (
+    'C7', 'F9', 
+    lista_perioade(
+        per_dif(TO_DATE('04-12-2024', 'DD-MM-YYYY'), TO_DATE('15:00', 'HH24:MI'), TO_DATE('17:30', 'HH24:MI')),
+        per_dif(TO_DATE('04-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:30', 'HH24:MI'))),
+    'Romana', 150);
+
+INSERT INTO difuzeaza VALUES (
+    'C8', 'F10', 
+    lista_perioade(
+        per_dif(TO_DATE('15-12-2024', 'DD-MM-YYYY'), TO_DATE('14:00', 'HH24:MI'), TO_DATE('15:30', 'HH24:MI')),
+        per_dif(TO_DATE('16-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('17:30', 'HH24:MI'))),
+    'Engleza', 90);
+
+INSERT INTO difuzeaza VALUES (
+    'C10', 'F12', 
+    lista_perioade(
+        per_dif(TO_DATE('05-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('19:30', 'HH24:MI')),
+        per_dif(TO_DATE('02-12-2024', 'DD-MM-YYYY'), TO_DATE('20:00', 'HH24:MI'), TO_DATE('22:00', 'HH24:MI'))),
+    'Japoneza', 90);
+
+INSERT INTO difuzeaza VALUES (
+    'C1','F13', 
+    lista_perioade(
+        per_dif(TO_DATE('10-12-2024', 'DD-MM-YYYY'), TO_DATE('17:30', 'HH24:MI'), TO_DATE('20:00', 'HH24:MI')),
+        per_dif(TO_DATE('11-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('18:30', 'HH24:MI'))),
+    'Romana', 150);
+    
+INSERT INTO difuzeaza VALUES (
+    'C2', 'F14', 
+    lista_perioade(
+        per_dif(TO_DATE('15-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('18:00', 'HH24:MI'))),
+    'Romana', 120);
+
+INSERT INTO difuzeaza VALUES (
+    'C3', 'F15', 
+    lista_perioade(
+        per_dif(TO_DATE('12-12-2024', 'DD-MM-YYYY'), TO_DATE('19:00', 'HH24:MI'), TO_DATE('21:00', 'HH24:MI'))),
+    'Romana', 120);
+
+INSERT INTO difuzeaza VALUES (
+    'C4', 'F16', 
+    lista_perioade(
+        per_dif(TO_DATE('20-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('18:30', 'HH24:MI')),
+        per_dif(TO_DATE('21-12-2024', 'DD-MM-YYYY'), TO_DATE('15:00', 'HH24:MI'), TO_DATE('17:30', 'HH24:MI')),
+        per_dif(TO_DATE('22-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:30', 'HH24:MI'))),
+    'Engleza', 150);
+
+INSERT INTO difuzeaza VALUES (
+    'C5', 'F17', 
+    lista_perioade(
+        per_dif(TO_DATE('18-12-2024', 'DD-MM-YYYY'), TO_DATE('15:00', 'HH24:MI'), TO_DATE('16:20', 'HH24:MI')),
+        per_dif(TO_DATE('02-12-2024', 'DD-MM-YYYY'), TO_DATE('14:30', 'HH24:MI'), TO_DATE('15:50', 'HH24:MI'))),
+    'Romana', 80);
+
+INSERT INTO difuzeaza VALUES (
+    'C6', 'F18', 
+    lista_perioade(
+        per_dif(TO_DATE('10-12-2024', 'DD-MM-YYYY'), TO_DATE('17:00', 'HH24:MI'), TO_DATE('18:30', 'HH24:MI')),
+        per_dif(TO_DATE('12-12-2024', 'DD-MM-YYYY'), TO_DATE('19:00', 'HH24:MI'), TO_DATE('20:30', 'HH24:MI'))),
+    'Chineza', 90);
+
+INSERT INTO difuzeaza VALUES (
+    'C7', 'F19', 
+    lista_perioade(
+        per_dif(TO_DATE('05-12-2024', 'DD-MM-YYYY'), TO_DATE('15:00', 'HH24:MI'), TO_DATE('17:10', 'HH24:MI')),
+        per_dif(TO_DATE('06-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:10', 'HH24:MI')),
+        per_dif(TO_DATE('07-12-2024', 'DD-MM-YYYY'), TO_DATE('17:30', 'HH24:MI'), TO_DATE('19:40', 'HH24:MI'))),
+    'Romana', 130);
+
+INSERT INTO difuzeaza VALUES (
+    'C8', 'F20', 
+    lista_perioade(
+        per_dif(TO_DATE('19-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('18:20', 'HH24:MI')),
+        per_dif(TO_DATE('02-12-2024', 'DD-MM-YYYY'), TO_DATE('18:30', 'HH24:MI'), TO_DATE('20:50', 'HH24:MI'))),
+    'Engleza', 140);
+
+
+INSERT INTO difuzeaza VALUES (
+    'C9', 'F21', 
+    lista_perioade(
+        per_dif(TO_DATE('10-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('20:00', 'HH24:MI'))),
+    'Romana', 120);
+
+
+
+INSERT INTO difuzeaza VALUES (
+    'C10', 'F22', 
+    lista_perioade(
+        per_dif(TO_DATE('23-12-2024', 'DD-MM-YYYY'), TO_DATE('17:00', 'HH24:MI'), TO_DATE('18:10', 'HH24:MI'))),
+    'Italiana', 70);
+
+
+INSERT INTO difuzeaza VALUES (
+    'C1', 'F23', 
+    lista_perioade(
+        per_dif(TO_DATE('15-12-2024', 'DD-MM-YYYY'), TO_DATE('19:00', 'HH24:MI'), TO_DATE('20:50', 'HH24:MI'))),
+    'Spaniola', 110);
+
+
+INSERT INTO difuzeaza VALUES (
+    'C2', 'F24', 
+    lista_perioade(
+        per_dif(TO_DATE('27-12-2024', 'DD-MM-YYYY'), TO_DATE('16:00', 'HH24:MI'), TO_DATE('17:30', 'HH24:MI')),
+        per_dif(TO_DATE('02-12-2024', 'DD-MM-YYYY'), TO_DATE('18:00', 'HH24:MI'), TO_DATE('19:30', 'HH24:MI'))),
+    'Romana', 90);
+
+
+INSERT INTO difuzeaza VALUES (
+    'C3', 'F25', 
+    lista_perioade(
+        per_dif(TO_DATE('10-12-2024', 'DD-MM-YYYY'), TO_DATE('15:30', 'HH24:MI'), TO_DATE('17:10', 'HH24:MI'))),
+    'Franceza', 100);
+
+
+----------------------------------  EXERCITIUL 6 ----------------------------------------
+
+create or replace procedure ex6 
+is 
+    -- Definire tipuri de date pentru afisarea informatiilor despre filme
+    type tablou_indexat_nume is table of film.nume_film%type index by pls_integer;
+    type tablou_indexat_cod is table of film.cod_film%type index by pls_integer;
+    t_indexat_filme_nume tablou_indexat_nume;
+    t_indexat_filme_cod tablou_indexat_cod;
+    
+    cursor c_cinematograf is
+        select cod_cinematograf as cod, nume_cinema as nume
+        from cinematograf;
+        
+    cursor c_film(cod cinematograf.cod_cinematograf%type) is
+        select f.nume_film as nume, f.cod_film as cod
+        from difuzeaza d
+            join film f on d.cod_film = f.cod_film
+        where d.cod_cinematograf = cod;
+        
+    -- Definire tipuri de date pentru afisarea clientilor
+    type tablou_imbricat1 is table of clienti.nume_client%type;
+    type tablou_imbricat2 is table of clienti.cod_client%type;
+    
+
+    cursor c_client(cod film.cod_film%type) is
+        select distinct c.nume_client, c.cod_client
+        from clienti c
+            join rezervare r on c.cod_client = r.cod_client
+        where r.cod_film = cod;
+    
+    -- Definire vector pentru afisarea recenziilor
+    type vector is varray(20) of recenzie.scor%type;
+    
+    cursor c_recenzie(cod film.cod_film%type) is
+        select rec.scor, rec.cod_client
+        from recenzie rec
+            join clienti c on rec.cod_client = c.cod_client
+            join film f on rec.cod_film = f.cod_film
+        where f.cod_film = cod
+            -- blocul EXISTS este folosit pentru a valida ca recenzia selectata apartine unui 
+            -- client care a facut o rezervare pentru filmul respectiv
+            and exists (
+                        select 1
+                        from rezervare rez
+                        where rez.cod_film = f.cod_film
+                                and rez.cod_client = rec.cod_client
+                        );
+            -- fara existenta blocului EXITS s-ar returna toate recenziile inregistrate vreodata
+            -- pentru filmul respectiv
+    
+begin
+    -- Se parcurge fiecare cinematograf
+    for i in c_cinematograf loop
+        dbms_output.put_line('----------------------------------------------');
+        dbms_output.put_line('Cinematograf: ' || i.nume);
+        dbms_output.put_line('----------------------------------------------');
+    
+       open c_film(i.cod);
+       fetch c_film bulk collect into t_indexat_filme_nume, t_indexat_filme_cod;
+       
+        -- Se afiseaza filmele care corespund cinematografului curent
+        if t_indexat_filme_nume.count = 0 then
+            dbms_output.put_line('Nu exista filme difuzate în acest cinematograf.');
+        else
+            for j in t_indexat_filme_nume.first..t_indexat_filme_nume.last loop
+                dbms_output.put_line('  Film: ' || t_indexat_filme_nume(j));
+                
+                -- Se afiseaza clientii care au rezervari pentru filmul curent
+                open c_client(t_indexat_filme_cod(j));
+                declare
+                    -- Se va initializa pentru fiecare film un vector cu recenziile lasate de clienti
+                    v_recenzii vector := vector(); 
+                    t_imbricat1_clienti tablou_imbricat1 := tablou_imbricat1(); -- se retin numele clientilor
+                    t_imbricat2_clienti tablou_imbricat2 := tablou_imbricat2(); -- codurile clientilor care au facut rezervari
+                    t_imbricat3_clienti tablou_imbricat2 := tablou_imbricat2(); -- codurile clientilor care au lasat recenzie
+                begin
+                    fetch c_client bulk collect into t_imbricat1_clienti, t_imbricat2_clienti;
+                    if t_imbricat1_clienti.count = 0 then
+                        dbms_output.put_line('    Nu exista clienti cu rezervari pentru acest film.');
+                    else
+                        dbms_output.put('    Clienti cu rezervari: ');
+                        for k in t_imbricat1_clienti.first..t_imbricat1_clienti.last loop
+                            dbms_output.put(t_imbricat1_clienti(k));
+                            if k < t_imbricat1_clienti.last then
+                                dbms_output.put(', ');
+                            end if;
+                        end loop;
+                        dbms_output.new_line;
+                        
+                        -- Se afiseaza recenziile pentru filmul curent
+                        open c_recenzie(t_indexat_filme_cod(j));
+                        fetch c_recenzie bulk collect into v_recenzii, t_imbricat3_clienti;
+
+                        if v_recenzii.count = 0 then
+                            dbms_output.put_line('    Nu exista recenzii pentru acest film.');
+                        else
+                            for k in t_imbricat1_clienti.first..t_imbricat1_clienti.last loop
+                                -- bloc necesar pentru a determina daca clientul curent a acordat sau nu recenzie filmului curent
+                                declare
+                                    -- cu aceasta variabila se verifica existenta unei recenzii date de clientul curent
+                                    nota_existenta boolean := false;
+                                begin
+                                    for idx in 1..v_recenzii.count loop
+                                        -- daca clientul care a facut o rezervare la filmul curent
+                                        -- a acordat si o recenzie, atunci se va afisa nota lui
+                                        if t_imbricat2_clienti(k) = t_imbricat3_clienti(idx) then
+                                            dbms_output.put_line('      ' || t_imbricat1_clienti(k) || ' a acordat nota: ' || v_recenzii(idx));
+                                            nota_existenta := true;
+                                            exit; 
+                                        end if;
+                                    end loop;
+                                    if not nota_existenta then
+                                        dbms_output.put_line('      ' || t_imbricat1_clienti(k) || ' nu a acordat nicio nota.');
+                                    end if;
+                                end;
+                            end loop;
+                        end if;
+                        close c_recenzie;
+                    end if;
+                end;
+                close c_client;
+            end loop;
+        end if;
+        dbms_output.new_line;
+        close c_film;
+    end loop;
+end ex6;
+/
+
+----------------------- TESTARE EX 6 -------------------------------
+
+
+EXECUTE EX6;
+
+
+----------------------------------  EXERCITIUL 7 ----------------------------------------
+
+create or replace procedure ex7(gen in film.gen_film%type)
+is
+    verificare film.cod_film%type; -- variabila pentru a testa existenta genului
+    ct_recenzii number; -- variabila pentru a verifica exista recenziilor unui film
+    
+    -- cursor pentru filme
+    cursor c_film is
+        select cod_film, nume_film
+        from film
+        where gen_film = gen;
+    
+    -- cursor parametrizat, dependent de cursorul c_film
+    cursor c_recenzie(cod film.cod_film%type) is
+        select  scor, data_recenzie
+        from recenzie
+        where cod_film = cod 
+        order by data_recenzie desc ;
+        
+    -- cursor dinamic pentru perioadele de difuzare
+    type difuzare_tip is ref cursor;
+    c_difuzare difuzare_tip;
+
+    interogare_sql varchar2(1000);
+    v_data_difuzare date;
+    v_ora_inceput date;
+    v_ora_final date;
+
+begin
+    -- tratarea erorii ca nu exista genul introdus de utilizator
+    select cod_film into verificare
+    from film
+    where gen_film = gen
+        and rownum = 1; -- se limiteaza rezultatul cautarii a.i sa returneze doar primul rand, 
+-- daca exista, care indeplineste conditia gen_film = gen
+       
+    for i in c_film loop
+        ct_recenzii := 0;
+        dbms_output.put_line('Numele filmului: ' || i.nume_film || ', iar codul: ' || i.cod_film);
+        dbms_output.put_line('  Perioada de difuzare a acestui film este: ');
+
+        interogare_sql := 'select data_difuzare, ora_inceput, ora_final ' ||
+                          'from table (select perioade_difuzare ' ||
+                                      'from difuzeaza ' ||
+                                      'where cod_film = :cod_film_param)';
+
+        -- se deschide cursorul dinamic 
+        open c_difuzare for interogare_sql using i.cod_film;
+        loop
+            fetch c_difuzare into v_data_difuzare, v_ora_inceput, v_ora_final;
+            exit when c_difuzare%notfound;
+
+            dbms_output.put_line('      Data: ' || v_data_difuzare || ', intre orele: ' ||
+                                 to_char(v_ora_inceput, 'hh24:mi') || '-' || to_char(v_ora_final, 'hh24:mi'));
+        end loop;
+        close c_difuzare;
+        
+        for j in c_recenzie(i.cod_film) loop
+            dbms_output.put_line('  Recenzia filmului a fost postata la data: '||j.data_recenzie||', iar nota acordata este: '||j.scor);
+            ct_recenzii := ct_recenzii + 1;
+        end loop;
+        
+        if ct_recenzii = 0 then
+            dbms_output.put_line('  Acest film nu are recenzii.');
+        end if;
+        
+        dbms_output.new_line;
+    end loop;
+
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Nu exista filme cu genul specificat in baza de date.');
+    WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20012,'A aparut o eroare: ' || sqlerrm);
+end ex7;
+/
+
+
+----------------------- TESTARE EX 7 -------------------------------
+
+begin 
+     ex7('Drama');
+end;
+/
+
+execute ex7('Horror');
+----------------------------------  EXERCITIUL 8 ----------------------------------------
+
+-- se creeaza un tabel pentru a tine evidenta erorilor aparute
+CREATE TABLE istoric_erori(
+   id_eroare number generated by default as identity primary key, 
+   exercitiu varchar2(100),
+   mesaj_eroare varchar2(4000),
+   data_eroare varchar2(100)
+);
+
+-- se va utiliza o procedura pentru a putea insera mesajul erorilor in tabel
+-- procedura se va apela in functia ex8 declarata mai jos
+create or replace
+    procedure inserare_date_tabel( ex in istoric_erori.exercitiu%type,
+                                   mesaj in istoric_erori.mesaj_eroare%type) is
+    v_id istoric_erori.id_eroare%type;
+    v_ex istoric_erori.exercitiu%type;
+    v_msg istoric_erori.mesaj_eroare%type;
+    v_data istoric_erori.data_eroare%type;
+begin
+    INSERT INTO  istoric_erori (exercitiu, mesaj_eroare, data_eroare)
+        VALUES (ex, mesaj, to_char(sysdate, 'dd-mon-yyyy hh24:mi'))
+    RETURNING id_eroare into v_id;
+
+    -- preluam ultima linie bazata pe id-ul inserat
+    select exercitiu, mesaj_eroare, data_eroare
+    into v_ex, v_msg, v_data
+    from istoric_erori
+    where id_eroare = v_id;
+
+    -- afisam eroarea inserata
+    dbms_output.put_line('----------------------');
+    dbms_output.put_line('Ultima eroare inserata');
+    dbms_output.put_line('----------------------');
+    dbms_output.put_line('Exercitiu: ' || v_ex);
+    dbms_output.put_line('Mesaj eroare: ' || v_msg);
+    dbms_output.put_line('Data eroare: ' || v_data);
+end inserare_date_tabel;
+/
+
+create or replace function 
+    ex8( nume in cinematograf.nume_companie%type, 
+         an in film.an_aparitie%type,
+         total_filme out number) 
+            return number --se va returna procentul din enunt
+is
+    v_cod cinematograf.cod_cinematograf%type;
+    mesaj_specific varchar2(4000);
+    total_filme_dupa_anul_dat number := 0;
+    NU_EXISTA_FILME EXCEPTION;
+    AN_INVALID1 EXCEPTION;
+    AN_INVALID2 EXCEPTION;
+begin
+    --tratarea exceptiilor NO_DATA_FOUND si TOO_MANY_ROWS cu ajutorul variabilei v_cod
+    select cod_cinematograf into v_cod 
+    from cinematograf
+    where nume_companie = nume;
+    
+    if an > extract(year from sysdate) then
+        RAISE AN_INVALID1;
+    end if;
+    
+    if an<1000 or an>9999 then
+        RAISE AN_INVALID2;
+    end if;
+    
+    -- UTILIZAREA A 3 TABELE INTR-O SINGURA COMANDA SQL
+    -- determinare numar total filme
+    select count(d.cod_film) into total_filme
+    from film f
+        join difuzeaza d on f.cod_film = d.cod_film
+        join cinematograf c on d.cod_cinematograf = c.cod_cinematograf
+    where c.cod_cinematograf = v_cod;
+    
+    -- determinarea numarului de filme care au aparut dupa un anumit an
+    select count(f.cod_film) into total_filme_dupa_anul_dat
+    from film f
+        join difuzeaza d on f.cod_film = d.cod_film
+        join cinematograf c on d.cod_cinematograf = c.cod_cinematograf
+    where c.cod_cinematograf = v_cod and f.an_aparitie >= an;
+   
+    if total_filme_dupa_anul_dat = 0 then
+        RAISE NU_EXISTA_FILME;
+    end if;
+    return round(total_filme_dupa_anul_dat*100/total_filme,2);
+    
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            mesaj_specific := 'Nu s-a gasit in baza de date o companie cu numele ' || nume;
+            inserare_date_tabel('ex8', mesaj_specific);
+            return -1;
+        WHEN TOO_MANY_ROWS THEN
+            mesaj_specific := 'Exista in baza de date mai multe companii cu numele ' || nume;
+            inserare_date_tabel('ex8', mesaj_specific);
+            return -1;
+        WHEN NU_EXISTA_FILME THEN
+            mesaj_specific := 'Nu exista in baza de date filme care au aparut dupa anul ' || an;
+            inserare_date_tabel('ex8', mesaj_specific);
+            return 0;
+        WHEN AN_INVALID1 THEN
+            mesaj_specific := 'Anul introdus nu trebuie sa fie mai mare decat anul curent.';
+            inserare_date_tabel('ex8', mesaj_specific);
+            return -1;
+        WHEN AN_INVALID2 THEN
+            mesaj_specific := 'Anul introdus trebuie sa aiba 4 cifre.';
+            inserare_date_tabel('ex8', mesaj_specific);
+            return -1;
+        WHEN OTHERS THEN 
+            mesaj_specific := 'A aparut alta eroare: ' || SQLERRM;
+            inserare_date_tabel('ex8', mesaj_specific);
+            return -1;
+end ex8;
+/
+
+----------------------- TESTARE EX 8 -------------------------------
+
+-- FUNCTIONEAZA CORECT FARA EXCEPTII
+-- prima varianta
+DECLARE
+    total_filme NUMBER;
+    procent NUMBER; 
+    an number := 2004;
+BEGIN 
+    procent := ex8('BV Cinemas', an, total_filme);
+    
+    DBMS_OUTPUT.PUT_LINE('Numar total de filme: ' || total_filme);
+    DBMS_OUTPUT.PUT_LINE('Procentul filmelor care au aparut dupa anul '||an||' din total este: ' || procent || '%.');
+END;
+/
+
+-- a doua varianta
+VARIABLE procent NUMBER 
+VARIABLE total_filme NUMBER 
+EXECUTE :procent := ex8('GJ Cinemas', 2004, :total_filme)
+PRINT procent
+PRINT total_filme
+
+-- NO_DATA_FOUND
+DECLARE
+    total_filme NUMBER;
+    procent NUMBER; 
+    an number := 2004;
+BEGIN 
+    procent := ex8(' Cinemas', an, total_filme);
+END;
+/
+
+-- TOO_MANY_ROWS
+DECLARE
+    total_filme NUMBER;
+    procent NUMBER; 
+    an number := 2004;
+BEGIN 
+    procent := ex8('IS Cinemas', an, total_filme);
+END;
+/
+
+-- NU_EXISTA_FILME
+DECLARE
+    total_filme NUMBER;
+    procent NUMBER; 
+    an number := 2020;
+BEGIN 
+    procent := ex8('BV Cinemas', an, total_filme);
+    DBMS_OUTPUT.PUT_LINE('Numar total de filme: ' || total_filme);
+    DBMS_OUTPUT.PUT_LINE('Procentul filmelor care au aparut dupa anul '||an||' din total este: ' || procent || '%.');
+END;
+/
+
+-- AN_INVALID1
+DECLARE
+    total_filme NUMBER;
+    procent NUMBER; 
+    an number := 2026;
+BEGIN 
+    procent := ex8('BV Cinemas', an, total_filme);
+END;
+/
+
+-- AN_INVALID2
+DECLARE
+    total_filme NUMBER;
+    procent NUMBER; 
+    an number := 200;
+BEGIN 
+    procent := ex8('BV Cinemas', an, total_filme);
+END;
+/
+
+-- VALUE_ERROR 
+BEGIN
+    DECLARE
+        total_filme NUMBER;
+        procent NUMBER; 
+        an number := 'doua mii douazeci';
+    BEGIN
+        procent := ex8('BV Cinemas', an, total_filme);
+    END;
+EXCEPTION
+    WHEN VALUE_ERROR THEN
+        inserare_date_tabel('ex8', 'Anul introdus nu este valid, acesta trebuie sa fie de tipul numeric.');
+END;
+/
+
+select *
+from istoric_erori;
+
+----------------------------------  EXERCITIUL 9 ----------------------------------------
+
+create or replace procedure
+    ex9(id_film in film.cod_film%type,
+        id_cinema in cinematograf.cod_cinematograf%type,
+        nr_rezervari out number, --determinarea punctului 1 din cerinta
+        categorie out varchar2) -- determinarea punctului 4 din cerinta
+is
+    venit_total number; --variabila pentru determinarea punctului 2 din cerinta
+    mesaj istoric_erori.mesaj_eroare%type;
+    exista_film film.nume_film%type; 
+    exista_cinema number;
+    exista_rezervari number;
+    exista_o_zi date;
+    eroare_client varchar2(40);
+    
+    
+    --cursor pentru a determina orele la care se difuzeaza filmul avand codul id_film
+    cursor c_ore is
+        select t.ora_inceput inceput, t.ora_final final
+        from difuzeaza d, table(d.perioade_difuzare) t
+        where d.cod_film = id_film;
+    
+    --cursor pentru a putea afisa detalii despre rezervarile clientilor (punctul 3 din cerinta)
+    cursor c_rezervari is
+        select
+           cl.nume_client as nume,
+           cl.prenume_client as prenume,
+           cl.puncte_bonus as puncte,
+           r.pret_bilet*r.numar_persoane as pret_initial,
+           r.pret_bilet*r.numar_persoane - cl.puncte_bonus/10 as pret_final
+        from cinematograf c
+            join difuzeaza d on c.cod_cinematograf = d.cod_cinematograf
+            join film f on d.cod_film = f.cod_film
+            join rezervare r on f.cod_film = r.cod_film
+            join clienti cl on r.cod_client = cl.cod_client
+        where f.cod_film = id_film and c.cod_cinematograf = id_cinema;
+    
+    
+    -- Declarare exceptii proprii
+    NU_EXISTA_CINEMA EXCEPTION;
+    NU_EXISTA_REZERVARI EXCEPTION;
+    FARA_CATEGORIE EXCEPTION;
+
+begin
+    -- tratarea erorii ca nu exista film cu acel cod --> NO_DATA_FOUND
+    select nume_film into exista_film
+    from film
+    where cod_film = id_film
+        and rownum = 1;
+
+    -- tratarea erorii ca nu exista cinematograf cu acel cod
+    select count(*) into exista_cinema
+    from cinematograf
+    where cod_cinematograf = id_cinema;
+
+    if exista_cinema = 0 then
+        RAISE NU_EXISTA_CINEMA;
+    end if;
+
+
+    -- tratarea erorii ca filmul avand codul id_film nu se difuzeaza intr-o singura zi --> TOO_MANY_ROWS
+    select distinct t.data_difuzare into exista_o_zi
+    from difuzeaza d, table(d.perioade_difuzare) t
+    where d.cod_film = id_film
+      and d.cod_cinematograf = id_cinema;
+
+
+     --tratarea erorii ca filmul se difuzeaza intr-o singura zi, dar nu are rezervari atribuite
+    select count(*) into nr_rezervari
+        from difuzeaza d
+            join film f on d.cod_film = f.cod_film
+            join rezervare r on f.cod_film = r.cod_film
+        where d.cod_film = id_film and d.cod_cinematograf = id_cinema;
+        
+        if nr_rezervari = 0 then
+            RAISE NU_EXISTA_REZERVARI;
+        end if;
+    
+    dbms_output.put_line('');
+    dbms_output.put_line('               - DETALII DESPRE FILM -              ');
+    dbms_output.put_line('');
+    dbms_output.put_line('Filmul '||exista_film||' se difuzeaza in ziua '||exista_o_zi||' si in intervalul orar: ');
+    for i in c_ore loop
+        dbms_output.put_line('  - '||to_char(i.inceput, 'HH24:MI')||' - '||to_char(i.FINAL, 'HH24:MI'));
+    end loop;
+    dbms_output.new_line;
+    
+    dbms_output.put_line('');
+    dbms_output.put_line('              - DETALII REZERVARI -                ');
+    dbms_output.put_line('');
+    dbms_output.put_line('Pentru acest film s-au facut '||nr_rezervari||' rezervari.');
+    
+    dbms_output.put_line('  In functie de punctele bonus acumulate, clientii au obtinut urmatoarele reduceri: ');
+    dbms_output.new_line;
+    for i in c_rezervari loop
+        dbms_output.put_line('Numele clientului: '||i.nume||' '||i.prenume);
+        dbms_output.put_line('Puncte bonus: '||i.puncte);
+        dbms_output.put_line('Reducere: '||i.puncte/10||' lei');
+         dbms_output.put_line('Pretul initial al rezervarii: '||i.pret_initial||' lei');
+        dbms_output.put_line('Pretul final al rezervarii: '||i.pret_final||' lei');
+        
+        if
+            i.puncte >= 100 and i.puncte < 150 then
+                categorie := 'Ocazional'; 
+        elsif
+            i.puncte >=150 and i.puncte < 190 then
+                categorie := 'Activ'; 
+        elsif
+            i.puncte >= 190 then
+                categorie := 'Loial'; 
+        else 
+            eroare_client := i.nume||' '||i.prenume;
+            RAISE FARA_CATEGORIE;
+        end if;
+        dbms_output.put_line('Categoria clientului: '||categorie);
+        dbms_output.put_line('---------------------------------------------');
+        dbms_output.new_line;
+    end loop;
+    
+    -- determinarea venitului total atribuit filmului avand codul id_film
+    -- UTILIZARE A 5 TABELE INTR-O SINGURA COMANDA SQL
+    select
+          trunc(sum(r.pret_bilet*r.numar_persoane - cl.puncte_bonus/10)) into venit_total
+    from cinematograf c
+            join difuzeaza d on c.cod_cinematograf = d.cod_cinematograf
+            join film f on d.cod_film = f.cod_film
+            join rezervare r on f.cod_film = r.cod_film
+            join clienti cl on r.cod_client = cl.cod_client
+    where f.cod_film = id_film and c.cod_cinematograf = id_cinema;
+    dbms_output.put_line('Filmul '||exista_film||' a adus incasari in valoare de '||venit_total||' lei.');
+    
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        mesaj := 'Nu s-a gasit in baza de date un film avand codul ' || id_film;
+        inserare_date_tabel('ex9', mesaj);
+    WHEN TOO_MANY_ROWS THEN
+        mesaj := 'Filmul care are codul ' || id_film || ' se difuzeaza in mai multe zile';
+        inserare_date_tabel('ex9', mesaj);
+    WHEN NU_EXISTA_CINEMA THEN
+        mesaj := 'In baza de date nu exista un cinematograf care sa aiba codul: ' || id_cinema;
+        inserare_date_tabel('ex9', mesaj);
+    WHEN NU_EXISTA_REZERVARI THEN
+        mesaj := 'In baza de date nu exista rezervari care sa includa filmul avand codul: ' || id_film
+                 ||' cu toate ca se difuzeaza intr-o singura zi.';
+        inserare_date_tabel('ex9', mesaj);
+    WHEN FARA_CATEGORIE THEN
+        mesaj := 'Clientul '||eroare_client||' nu apartine niciunei categorii.';
+        inserare_date_tabel('ex9', mesaj);
+    WHEN OTHERS THEN 
+            mesaj := 'A aparut alta eroare: ' || SQLERRM;
+            inserare_date_tabel('ex9', mesaj);
+end ex9;
+/
+
+----------------------- TESTARE EX 9 -------------------------------
+
+-- FUNCTIONEAZA FARA EXCEPTII
+-- varianta 1
+declare 
+    nr_rezervari number;
+    categorie varchar2(20);
+begin
+    ex9('F9', 'C7', nr_rezervari, categorie);
+end;
+/
+
+-- varianta 2
+variable nr_rezervari number
+variable categorie varchar2
+execute ex9('F15', 'C3', :nr_rezervari, :categorie)
+
+-- NO_DATA_FOUND
+declare 
+    nr_rezervari number;
+    categorie varchar2(20);
+begin
+    ex9('F26', 'C7', nr_rezervari, categorie);
+end;
+/
+
+-- TOO_MANY_ROWS
+declare 
+    nr_rezervari number;
+    categorie varchar2(20);
+begin
+    ex9('F3', 'C2', nr_rezervari, categorie);
+end;
+/
+
+-- VALUE_ERROR
+begin
+    declare 
+        nr_rezervari number := ' ';
+        categorie varchar2(20);
+    begin
+        ex9('F3', 'C2', nr_rezervari, categorie);
+    end;
+    EXCEPTION
+        WHEN VALUE_ERROR THEN
+            inserare_date_tabel('ex9', 'Al treilea argument al procedurii trebuie sa fie de tip numeric.');
+end;
+/
+
+-- NU_EXISTA_CINEMA
+variable nr_rezervari number
+variable categorie varchar2
+execute ex9('F6', 'C11', :nr_rezervari, :categorie)
+
+-- NU_EXISTA_REZERVARI
+variable nr_rezervari number
+variable categorie varchar2
+execute ex9('F25', 'C3', :nr_rezervari, :categorie)
+
+-- FARA_CATEGORIE
+variable nr_rezervari number
+variable categorie varchar2
+execute ex9('F23', 'C1', :nr_rezervari, :categorie)
+
+----------------------------------  EXERCITIUL 10 ----------------------------------------
+
+-- A fost implementat un pachet care contine procedurile necesare pentru validarea datei de angajare si inregistrarea detaliilor operatiunilor in tabelul trigger_history_angajati.
+-- Verificarea datei de angajare a fost realizata prin intermediul unui trigger la nivel de linie,
+-- iar ulterior a fost creat un trigger la nivel de comanda pentru a gestiona 
+-- inregistrarea operatiunilor efectuate.
+
+CREATE TABLE trigger_history_angajati(
+    id_trigger number generated by default as identity primary key,
+    tip_comanda varchar2(10),
+    data_trigger varchar2(100),
+    nume_tabel_modificat varchar2(30)
+);
+
+
+CREATE OR REPLACE PACKAGE pachet_ex10 IS
+    PROCEDURE verifica_data_angajarii(data_angajarii date);
+    PROCEDURE inserare_date_trigger(comanda in varchar2, tabel in varchar2);
+END pachet_ex10;
+/
+
+CREATE OR REPLACE PACKAGE BODY pachet_ex10 IS
+    procedure verifica_data_angajarii(data_angajarii date) is
+    begin
+        if data_angajarii > sysdate then
+            RAISE_APPLICATION_ERROR(-20010, 'Data angajarii nu poate fi in viitor!');
+        end if;
+    end verifica_data_angajarii;
+    
+     
+    procedure inserare_date_trigger(comanda in varchar2, tabel in varchar2)
+        is
+            v_id trigger_history_angajati.id_trigger%type;
+            v_comanda varchar2(10);
+            v_data varchar2(100);
+            v_tabel varchar2(30);
+    begin
+        insert into trigger_history_angajati(tip_comanda, data_trigger, nume_tabel_modificat)
+            values (comanda, to_char(sysdate, 'dd-mon-yyyy hh24:mi'), tabel)
+        returning id_trigger into v_id;
+    
+        select data_trigger, nume_tabel_modificat
+        into v_data, v_tabel
+        from trigger_history_angajati
+        where id_trigger = v_id;
+    
+        dbms_output.new_line;
+        dbms_output.put_line('-------------------------');
+        dbms_output.put_line('Ultimul trigger declansat');
+        dbms_output.put_line('-------------------------');
+        dbms_output.put_line('Tipul comenzii: '||comanda);
+        dbms_output.put_line('Data declansarii triggerului: '||v_data);
+        dbms_output.put_line('Numele tabelului asupra caruia s-au efectuat operatii: '||v_tabel);
+        dbms_output.new_line;
+    end inserare_date_trigger;
+END pachet_ex10;
+/
+
+CREATE OR REPLACE TRIGGER trigger_verif_data_angajarii
+BEFORE INSERT on angajati
+FOR EACH ROW
+BEGIN
+    pachet_ex10.verifica_data_angajarii(:NEW.data_angajare);
+END;
+/
+
+--Triggerul la nivel de comanda
+CREATE OR REPLACE TRIGGER trigger_ex10
+AFTER INSERT OR DELETE OR UPDATE ON angajati
+BEGIN
+    IF INSERTING THEN
+        pachet_ex10.inserare_date_trigger('INSERT', 'Angajati');
+    ELSIF DELETING THEN
+        pachet_ex10.inserare_date_trigger('DELETE', 'Angajati');
+    ELSIF UPDATING THEN
+        pachet_ex10.inserare_date_trigger('UPDATE', 'Angajati');
+    END IF;
+END;
+/
+
+----------------------- TESTARE EX 10 -------------------------------
+
+-- verificare inserări
+INSERT INTO angajati VALUES ('A28', 'J12', 'D7', 'C10','Florea', 'Alexandra', 2200, TO_DATE('20-DEC-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A29', 'J12', 'D7', 'C10','Florea', 'Alexandra', 2200, TO_DATE('05-JUN-25', 'DD-MON-YY'),'Activ');
+
+-- se vor mai insera 2 angajati, angajatul A29 si A30
+INSERT INTO angajati VALUES ('A29', 'J12', 'D7', 'C10','XX', 'Alexandra', 2200, TO_DATE('05-JUN-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A30', 'J12', 'D7', 'C10','YY', 'Alexandra', 2200, TO_DATE('05-JUN-24', 'DD-MON-YY'),'Activ');
+
+-- verificare update
+
+-- angajatii A28, A29 si A30 sunt singurii care au salariul de 2200, prin urmare, urmatorul update
+-- va actualiza 3 linii in acelasi timp
+update angajati 
+set cod_job = 'J11'
+where salariu_angajat = 2200;
+
+
+-- verificare delete
+
+-- se vor sterge cei trei angajati, A28, A29, A30
+delete from angajati
+where salariu_angajat = 2200;
+
+
+----------------------------------  EXERCITIUL 11 ----------------------------------------
+
+-- tabel cu ajutorul caruia vom urmari operatiile efectuate
+CREATE TABLE info_angajati(
+    id_info NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    cod VARCHAR2(3),
+    operatie varchar2(30),
+    detalii_coloana_modificata varchar2(200),
+    data_info date );
+
+CREATE OR REPLACE TRIGGER trigger_ex11
+    FOR INSERT OR UPDATE OF status_angajat ON angajati 
+    COMPOUND TRIGGER
+        record_info info_angajati%rowtype;
+    BEFORE EACH ROW IS  
+        minim joburi.salariu_minim%type;
+        maxim_angajati constant number := 10;
+        nr_angajati_in_prezent number;
+        BEGIN
+            if UPDATING then
+                if :NEW.status_angajat = 'Suspendat' then
+                    select salariu_minim into minim
+                    from joburi 
+                    where cod_job = :OLD.cod_job;
+        
+                    :NEW.salariu_angajat := :OLD.salariu_angajat - 0.05*:OLD.salariu_angajat;
+        
+                    if :NEW.salariu_angajat < minim then
+                        :NEW.salariu_angajat := minim;
+                    end if;
+                
+                    record_info.cod := :OLD.cod_angajat;
+                    record_info.operatie := 'Suspendare';
+                    record_info.detalii_coloana_modificata := 'Salariul a fost redus de la '||
+                    :OLD.salariu_angajat||' la ' || :NEW.salariu_angajat 
+                        || ', dar nu sub salariul minim (' || minim || ').';
+                    record_info.data_info := sysdate;
+                end if;
+            elsif INSERTING then
+                select salariu_minim into minim
+                from joburi 
+                where cod_job = :NEW.cod_job;
+        
+                if :NEW.salariu_angajat != minim then
+                    RAISE_APPLICATION_ERROR(-20001, 'Salariul trebuie sa fie cel minim corespunzator jobului (' 
+                        || minim || ').');
+                end if;
+            
+                select count(*) into nr_angajati_in_prezent
+                from angajati
+                where cod_cinematograf = :NEW.cod_cinematograf;
+
+                if nr_angajati_in_prezent >= maxim_angajati THEN
+                    RAISE_APPLICATION_ERROR(-20002, 'Cinematograful a atins limita maxima de angajati (' 
+                        || maxim_angajati || ').');
+                end if;
+
+                record_info.cod := :NEW.cod_angajat;
+                record_info.operatie := 'Adaugare';
+                record_info.detalii_coloana_modificata := 'Angajat nou cu salariul minim corespunzator jobului (' || minim || ').';
+                record_info.data_info := sysdate;
+            end if;
+    END BEFORE EACH ROW;
+    
+    AFTER EACH ROW IS
+        BEGIN
+            if record_info.cod is NOT NULL then
+                insert into info_angajati(cod, operatie, detalii_coloana_modificata, data_info)
+                    values (record_info.cod, record_info.operatie, record_info.detalii_coloana_modificata, record_info.data_info);
+                
+                dbms_output.put_line('Cod angajat: ' || record_info.cod);
+                dbms_output.put_line('Operatie: ' || record_info.operatie);
+                dbms_output.put_line('Detalii modificare: ' || record_info.detalii_coloana_modificata);
+                dbms_output.put_line('Data operatiei: ' || to_char(record_info.data_info, 'DD-MON-YYYY HH24:MI'));
+            end if;
+            
+            -- resetam valorile
+            record_info.cod := null;
+            record_info.operatie := null;
+            record_info.detalii_coloana_modificata := null;
+            record_info.data_info := null;
+        END AFTER EACH ROW;    
+END;
+/
+
+
+----------------------- TESTARE EX 11 -------------------------------
+-- verificare inserari corecte cu salariu corect
+INSERT INTO angajati VALUES ('A28', 'J12', 'D7', 'C10','Florea', 'Alexandra', 2200, TO_DATE('20-DEC-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A29', 'J12', 'D7', 'C10','Onila', 'Matei', 2200, TO_DATE('21-DEC-24', 'DD-MON-YY'),'Activ');
+
+-- verificare exceptii salariu
+INSERT INTO angajati VALUES ('A30', 'J12', 'D7', 'C10','Pacurariu', 'Alexandra', 2201, TO_DATE('21-DEC-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A31', 'J12', 'D7', 'C10','Pacurariu', 'Razvan', 2199, TO_DATE('21-DEC-24', 'DD-MON-YY'),'Activ');
+
+-- verificare pt nr maxim de angajati
+INSERT INTO angajati VALUES ('A32', 'J12', 'D7', 'C10','Nume1', 'Prenume1', 2200, TO_DATE('20-DEC-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A33', 'J12', 'D7', 'C10','Nume2', 'Prenume2', 2200, TO_DATE('21-DEC-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A34', 'J12', 'D7', 'C10','Nume3', 'Prenume3', 2200, TO_DATE('22-DEC-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A35', 'J12', 'D7', 'C10','Nume4', 'Prenume4', 2200, TO_DATE('23-DEC-24', 'DD-MON-YY'),'Activ');
+INSERT INTO angajati VALUES ('A36', 'J12', 'D7', 'C10','Nume5', 'Prenume5', 2200, TO_DATE('24-DEC-24', 'DD-MON-YY'),'Activ');
+
+
+-- la acest insert trebuie sa apara eroare de depasire a nr maxim de angajati
+-- deoarece am inserat al 11-lea angajat al cinematografului C10
+INSERT INTO angajati VALUES ('A37', 'J12', 'D7', 'C10','Nume6', 'Prenume6', 2200, TO_DATE('25-DEC-24', 'DD-MON-YY'),'Activ');
+
+-- verificare update
+update angajati
+set status_angajat = 'Suspendat'
+where cod_angajat = 'A1';
+
+
+-- verificare update, dar reducerea de salariu este mai mica decat salariul minim
+-- se va modifica angajatul 'A4'
+update angajati
+set status_angajat = 'Suspendat'
+where cod_angajat = 'A4';
+-- salariul ar fi fost redus de la 4050 la 3847 daca nu ar fi existat conditia ca reducerea salariului 
+-- sa fie cel putin egala cu salariul minim al jobului ocupat
+
+
+----------------------------------  EXERCITIUL 12 ----------------------------------------
+
+CREATE OR REPLACE TRIGGER trigger_ex12 
+  AFTER CREATE OR DROP OR ALTER ON SCHEMA
+DECLARE 
+BEGIN 
+    pachet_ex10.inserare_date_trigger(SYSEVENT, DICTIONARY_OBJ_NAME);
+    if SYSEVENT = 'ALTER' then
+        dbms_output.put_line('Tabela '||DICTIONARY_OBJ_NAME||' a fost modificata.');
+        
+    elsif SYSEVENT = 'DROP' then
+        dbms_output.put_line('Tabela '||DICTIONARY_OBJ_NAME||' a fost stearsa din baza de 
+            date');
+    elsif SYSEVENT = 'CREATE' then
+        dbms_output.put_line('Tabela '||DICTIONARY_OBJ_NAME||' a fost creata.');
+    end if;
+END; 
+/
+
+----------------------- TESTARE EX 12 -------------------------------
+-- ALTER PE FILM
+ALTER TABLE film add coloana_trigger varchar2(30);
+desc film;
+ALTER TABLE film drop column coloana_trigger ;
+INSERT INTO film VALUES('F26', 'Test', 18, 1995, 'Dragoste', 'Nume regizor', 'SUA', 'coloana_trigger');
+
+-- CREATE, ALTER, DROP PE O TABELA CREATA CA TEST
+CREATE TABLE test_trigger(
+    coloana1 varchar2(30),
+    coloana2 varchar2(30),
+    numar number);
+ALTER TABLE test_trigger add coloana4 varchar2(30);
+desc test_trigger;
+INSERT INTO test_trigger VALUES('Test', 'trigger_ex12', 12, 'ultima_coloana');
+select * from test_trigger;
+DROP TABLE test_trigger;
+
+----------------------------------  EXERCITIUL 13 ----------------------------------------
+
+-- secventa necesara in momentul adaugarii recenziilor noi in baza de date
+CREATE SEQUENCE recenzii_seq
+START WITH 32
+INCREMENT BY 1;
+
+-- In momentul in care un client face o rezervare, acest trigger actualizeaza tabela
+-- CLIENTI cu punctele bonus obtinute.
+-- Se va afisa de asemenea un mesaj de atentionare legat de restrictia de varsta a filmului.
+CREATE OR REPLACE TRIGGER actualizare_puncte_bonus 
+    FOR INSERT ON rezervare
+    COMPOUND TRIGGER
+        puncte_1_decembrie number := 0;
+        data_1_decembrie date := TO_DATE('01-12-2024', 'DD-MM-YYYY');
+        data_gasita boolean := false;
+        type vector is varray(10) of date;
+        date_difuzare vector := vector();
+        varsta film.varsta_recomandata%type;
+        
+        cursor c_date is
+            select t.data_difuzare 
+            from difuzeaza d, table(d.perioade_difuzare) t
+                where d.cod_film = :NEW.cod_film;
+    BEFORE EACH ROW IS
+        BEGIN
+            open c_date;
+            fetch c_date bulk collect into date_difuzare;
+            close c_date;
+            
+            for i in date_difuzare.first..date_difuzare.last loop
+                if date_difuzare(i) = data_1_decembrie then
+                    data_gasita := true;
+                    exit;
+                end if;
+            end loop;
+            
+            if data_gasita = true then
+                if :NEW.format_proiectie = '2D' then
+                    puncte_1_decembrie := 10;
+                elsif :NEW.format_proiectie = '3D' then
+                    puncte_1_decembrie := 15;
+                elsif :NEW.format_proiectie = 'IMAX' then
+                    puncte_1_decembrie := 20;
+                end if;
+            else
+                dbms_output.put_line('Rezervarea nu este facuta pentru un film din date de 1 decembrie, punctele bonus vor fi adaugate fara adaosul special');
+            end if;
+    END BEFORE EACH ROW;
+    
+    AFTER EACH ROW IS
+    BEGIN
+        update clienti 
+        set puncte_bonus = puncte_bonus+ puncte_1_decembrie+:NEW.pret_bilet*:NEW.numar_persoane
+        where cod_client = :NEW.cod_client;
+        
+        select varsta_recomandata into varsta
+        from film
+        where cod_film = :NEW.cod_film;
+        
+        dbms_output.put_line('Rezervarea a fost facuta cu succes!');
+        dbms_output.put_line('Aveti in vedere ca varsta minima la acest film este: '||varsta||' ani.');
+    END AFTER EACH ROW;
+END actualizare_puncte_bonus;
+/
+
+CREATE OR REPLACE PACKAGE pachet_ex13 AS
+    type record_top is record(
+    cod film.cod_film%type,
+    nume film.nume_film%type,
+    regizor film.nume_regizor%type,
+    numar_rez number,
+    nota_medie number
+    );
+    type tablou_imbricat is table of record_top;
+    type vector_clienti is varray(20) of clienti.cod_client%type;
+    type vector_cod_filme is varray(20) of film.cod_film%type;
+    type vector_nume_filme is table of film.nume_film%type index by pls_integer;
+    
+    function client_cu_max_puncte_bonus return number;
+    function clienti_care_dau_recenzii return vector_clienti;
+    function topul_filmelor_coduri return tablou_imbricat;
+    
+    procedure adauga_film_rezervare;
+    procedure notif_max_pct_bonus;
+    procedure submit_notif_max_pct_bonus_job;
+    procedure notif_recenzii;
+    procedure submit_notif_recenzii;
+    procedure adauga_recenzii(v_clienti in vector_clienti);
+    procedure afisare_top_filme(v_recorduri in tablou_imbricat);
+END pachet_ex13;
+/
+
+CREATE OR REPLACE PACKAGE BODY pachet_ex13 AS
+    
+    -------------------------------------  TOPUL FILMELOR - functie ---------------------------------------------
+    function topul_filmelor_coduri return tablou_imbricat
+    is
+        v_recorduri tablou_imbricat := tablou_imbricat();
+        cursor c_top_filme is
+            select f.cod_film, f.nume_film, f.nume_regizor,
+                  nvl(count(rez.cod_film), 0) nr_rezervari,
+                  nvl(round(avg(rec.scor),2), 0) nota_medie
+            from film f
+                join rezervare rez on f.cod_film = rez.cod_film
+                join clienti c on rez.cod_client = c.cod_client
+                join recenzie rec on c.cod_client = rec.cod_client
+            group by f.cod_film, f.nume_film, f.nume_regizor
+            order by nr_rezervari desc, nota_medie desc;
+    begin
+        open c_top_filme;
+        fetch c_top_filme bulk collect into v_recorduri;
+        close c_top_filme;
+        
+        return v_recorduri;
+    end topul_filmelor_coduri;
+
+     ----------------------------- ADAUGA FILME, REZERVARI, DIFUZARI- procedura ---------------------------
+    procedure adauga_film_rezervare
+    is
+        v_top tablou_imbricat := topul_filmelor_coduri;
+        primul_din_top record_top := v_top(v_top.first);
+        id_cinema varchar2(3);
+        durata varchar2(3);
+    begin
+        select cod_cinematograf, durata_film
+        into id_cinema, durata
+        from difuzeaza
+        where cod_film = primul_din_top.cod;
+        
+        INSERT INTO TABLE (
+        select d.perioade_difuzare
+        from difuzeaza d
+        where d.cod_cinematograf = id_cinema
+                and  d.cod_film = primul_din_top.cod)      
+        select per_dif(
+            TO_DATE('01-12-2024', 'DD-MM-YYYY'),
+            TO_DATE('18:00', 'HH24:MI'),
+            TO_DATE('18:00', 'HH24:MI') + durata / 1440)
+        FROM dual;
+        INSERT INTO rezervare VALUES (primul_din_top.cod, 8, 10, 3, '2D', 4, 'Card');
+        
+        
+        INSERT INTO film VALUES('F26', 'Red one', 8, 2024, 'Actiune', 'Jake Kasdan', 'SUA');
+        INSERT INTO difuzeaza VALUES (
+            'C4', 'F26', 
+        lista_perioade(
+            per_dif(TO_DATE('01-12-2024', 'DD-MM-YYYY'), TO_DATE('16:30', 'HH24:MI'), TO_DATE('19:00', 'HH24:MI'))),
+        'Engleza', 120);
+        INSERT INTO rezervare VALUES ('F26', 10, 10, 2, '2D', 1, 'Card');
+        INSERT INTO rezervare VALUES ('F26', 11, 10, 4, '2D', 1, 'Cash');
+        INSERT INTO rezervare VALUES ('F26', 12, 10, 3, '2D', 1, 'Cash');
+        
+        
+        INSERT INTO film VALUES('F27', 'BeetleJuice', 12, 2024, 'Comedie', 'Tim Burton', 'SUA');
+        INSERT INTO difuzeaza VALUES (
+            'C4', 'F27', 
+        lista_perioade(
+            per_dif(TO_DATE('01-12-2024', 'DD-MM-YYYY'), TO_DATE('14:30', 'HH24:MI'), TO_DATE('16:00', 'HH24:MI'))),
+        'Romana', 90);
+        INSERT INTO rezervare VALUES ('F27', 22, 20, 2, 'IMAX', 2, 'Card');
+        INSERT INTO rezervare VALUES ('F27', 7, 20, 2, 'IMAX', 2, 'Cash');
+    
+        
+        INSERT INTO film VALUES('F28', 'Anul Nou Care N-a Fost', 15, 2024, 'Drama', 'Bogdan Muresanu', 'Romania');
+        INSERT INTO difuzeaza VALUES (
+            'C4', 'F28', 
+        lista_perioade(
+            per_dif(TO_DATE('01-12-2024', 'DD-MM-YYYY'), TO_DATE('20:00', 'HH24:MI'), TO_DATE('22:00', 'HH24:MI'))),
+        'Romana', 120);
+        INSERT INTO rezervare VALUES ('F28', 21, 15, 1, '3D', 3, 'Card');
+        INSERT INTO rezervare VALUES ('F28', 4, 15, 4, '3D', 3, 'Cash');
+        INSERT INTO rezervare VALUES ('F28', 5, 15, 3, '3D', 3, 'Card');
+        INSERT INTO rezervare VALUES ('F28', 17, 15, 3, '3D', 3, 'Cash');
+    end adauga_film_rezervare;
+    
+     --------------------------------------  CLIENT MAX PCT BONUS - functie ---------------------------------------
+    function client_cu_max_puncte_bonus return number 
+    is
+        cod_client_cu_max_pct number;
+        max_puncte number := 0;
+        max_rezervari number := 0;
+        nr_rezervari_client number;
+    begin
+        for i in (select puncte_bonus, cod_client
+                  from clienti ) loop
+            if i.puncte_bonus > max_puncte then
+                cod_client_cu_max_pct := i.cod_client;
+                max_puncte := i.puncte_bonus;
+            
+                select count(*) into max_rezervari
+                from rezervare
+                where cod_client = i.cod_client;
+            
+            -- daca exista mai multi clienti cu acelasi nr de puncte bonus se va determina clientul
+            -- care a facut mai multe rezervari
+            elsif i.puncte_bonus = max_puncte then
+                select count(*) into nr_rezervari_client
+                from rezervare
+                where cod_client = i.cod_client;
+            
+                if nr_rezervari_client > max_rezervari then
+                    max_rezervari := nr_rezervari_client;
+                    cod_client_cu_max_pct := i.cod_client;
+                end if;
+            end if;
+        end loop;
+        return cod_client_cu_max_pct;
+    end client_cu_max_puncte_bonus;
+    
+    ---------------------------------------- NOTIF PCT BONUS-procedura  -------------------------------------------
+    procedure notif_max_pct_bonus is
+        nume varchar2(30);
+        prenume varchar2(30);
+    begin
+        select nume_client, prenume_client 
+        into nume, prenume
+        from clienti
+        where cod_client = client_cu_max_puncte_bonus;
+    
+        dbms_output.put_line('Notificare trimisa catre: '||nume||' '||prenume);
+        dbms_output.put_line('Felicitari, ai castigat o vizionare gratuita din cabina de proiectie a oricarui film ales de tine!');
+        dbms_output.put_line('Oferta este valabila pe perioada a doua saptamani incepand cu data la care ai primit mesajul.');
+    end notif_max_pct_bonus;
+    
+    ---------------------------------- DBMS_JOB PENTRU PCT BONUS - procedura ----------------------------
+    procedure submit_notif_max_pct_bonus_job is
+        nr_job_id number;
+    begin
+        DBMS_JOB.SUBMIT(
+            JOB        => nr_job_id,
+            WHAT       => 'pachet_ex13.notif_max_pct_bonus;',
+            NEXT_DATE  => TRUNC(SYSDATE) + 22/24, 
+            INTERVAL   => 'TRUNC(SYSDATE + 1) + 22/24' );
+        dbms_output.put_line('Job-ul cu ID-ul '||nr_job_id||' a fost inregistrat cu succes.');
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20050,'Eroare la înregistrarea job-ului: ' || SQLERRM);
+    end submit_notif_max_pct_bonus_job;
+    
+    
+    ---------------------- DETERMINARE CLIENTI CARE TREBUIE SA DEA RECENZII - functie ---------------
+    function clienti_care_dau_recenzii return vector_clienti
+    is
+        v_clienti vector_clienti := vector_clienti();
+        cursor c_clienti is
+            select c.cod_client
+            from clienti c
+                join rezervare r on c.cod_client = r.cod_client
+                join film f on r.cod_film = f.cod_film
+                join difuzeaza d on f.cod_film = d.cod_film, table(d.perioade_difuzare) t
+            where t.data_difuzare = TO_DATE('01-12-2024', 'DD-MM-YYYY')
+            group by c.cod_client
+            order by c.cod_client;
+    begin
+        open c_clienti;
+        fetch c_clienti bulk collect into v_clienti;
+        close c_clienti;
+        
+        return v_clienti;
+    end clienti_care_dau_recenzii;
+    
+    ----------------------------------------- NOTIFICARE RECENZII - procedura -------------------------------------
+    procedure notif_recenzii
+    is
+        v_clienti vector_clienti := clienti_care_dau_recenzii;
+        v_nume_filme vector_nume_filme;
+        nume clienti.nume_client%type;
+        prenume clienti.prenume_client%type;
+        
+        -- se selecteaza cele 4 filme care s-au difuzat pe 1 decembrie
+        cursor c_nume_filme(cod clienti.cod_client%type) is
+            select f.nume_film nume
+            from rezervare r 
+                join film f on r.cod_film = f.cod_film
+                join difuzeaza d on f.cod_film = d.cod_film, table(d.perioade_difuzare) t
+            where t.data_difuzare = TO_DATE('01-12-2024', 'DD-MM-YYYY') 
+                 and r.cod_client = cod;
+            
+    begin
+        for i in v_clienti.first..v_clienti.last loop
+            v_nume_filme := vector_nume_filme();
+            
+            for j in c_nume_filme(v_clienti(i)) loop
+                v_nume_filme(v_nume_filme.count + 1) := j.nume;
+            end loop;
+            
+            select nume_client, prenume_client
+            into nume, prenume
+            from clienti 
+            where cod_client = v_clienti(i);
+            
+            dbms_output.put_line('Notificare trimisa catre '||nume||' '||prenume||' pentru urmatoarele filme vizionate: ');
+            for k in v_nume_filme.first..v_nume_filme.last loop
+                dbms_output.put_line('  '||v_nume_filme(k));
+            end loop;
+            dbms_output.put_line('Ne bucuram ca ati ales sa va petreceti ziua de 1 decembrie la cinematograf!');
+            dbms_output.put_line('Va rugam lasati o recenzie filmelor pe care ati ales sa le vizionati.');
+            dbms_output.new_line;
+        end loop;
+    end notif_recenzii;
+    
+    -------------------------------------- DBMS_JOB PENTRU RECENZII - procedura ------------------------------
+    procedure submit_notif_recenzii is
+        v_job_id number;
+    begin
+        DBMS_JOB.SUBMIT(
+        JOB => v_job_id,
+        WHAT => 'pachet_ex13.notif_recenzii;',
+        NEXT_DATE => SYSDATE+3/86400,
+        INTERVAL  => 'SYSDATE+1'
+        );
+
+        dbms_output.put_line('Job-ul cu ID-ul '||v_job_id||' a fost inregistrat cu succes.');
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20051,'Eroare la înregistrarea job-ului: ' || SQLERRM);
+    end submit_notif_recenzii;
+    
+
+
+     -------------------------------------- INSERARE RECENZII - procedura ------------------------------------------
+    procedure adauga_recenzii(v_clienti in vector_clienti)
+    is
+        v_cod_filme vector_cod_filme;
+        v_nota number;
+        v_id_recenzie varchar2(3);
+         
+        cursor c_cod_filme(cod clienti.cod_client%type) is
+            select f.cod_film cod
+            from rezervare r 
+                join film f on r.cod_film = f.cod_film
+                join difuzeaza d on f.cod_film = d.cod_film, table(d.perioade_difuzare) t
+            where t.data_difuzare = TO_DATE('01-12-2024', 'DD-MM-YYYY') 
+                and r.cod_client = cod;       
+    begin
+        for i in v_clienti.first..v_clienti.last loop
+            v_cod_filme := vector_cod_filme();
+            
+            for j in c_cod_filme(v_clienti(i)) loop
+                v_cod_filme.extend;
+                v_cod_filme(v_cod_filme.count) := j.cod;
+            end loop;
+            
+            -- recenziile vor avea o nota random
+            -- codul recenziei se construieste utilizand recenzii_seq definita anterior
+            for k in v_cod_filme.first..v_cod_filme.last loop
+                v_nota := ROUND(DBMS_RANDOM.VALUE(1,10));
+                v_id_recenzie := 'R' || TO_CHAR(recenzii_seq.NEXTVAL);
+                INSERT INTO recenzie VALUES (v_id_recenzie, v_cod_filme(k), v_clienti(i), v_nota, TO_DATE('2024-12-02', 'YYYY-MM-DD'));
+            end loop;
+        end loop;
+        dbms_output.put_line('Recenziile au fost adaugate cu succes');
+    end adauga_recenzii;
+    
+    --------------------------------------------  TOPUL FILMELOR - procedura ---------------------------------------
+    procedure afisare_top_filme(v_recorduri in tablou_imbricat) is 
+    -- in v_recorduri se retineau informatiile filmelor ordonate descrescator dupa popularitate
+    begin
+        dbms_output.put_line('Topul filmelor din anul 2024 difuzate in cinematografe: ');
+        for i in v_recorduri.first..v_recorduri.last loop
+            dbms_output.put_line('Cod: '||v_recorduri(i).cod);
+            dbms_output.put_line('Nume film: '||v_recorduri(i).nume);
+            dbms_output.put_line('Regizor: '||v_recorduri(i).regizor);
+            dbms_output.put_line('Acest film a avut '||v_recorduri(i).numar_rez||' de rezervari');
+            dbms_output.put_line('Scorul mediu in urma recenziilor a fost '||v_recorduri(i).nota_medie);
+            dbms_output.new_line;
+        end loop;
+        
+    end afisare_top_filme;
+    
+END pachet_ex13;    
+/
+
+----------------------- TESTARE EX 13 -------------------------------
+
+-- In continuare fiecare pas va fi compilat pe rand pentru a se putea verifica mai usor
+-- functionalitatea pachetului.
+
+--Pasul 1
+declare
+    cod_client_max_pct_bonus number;
+    v_clienti pachet_ex13.vector_clienti;
+    v_coduri_filme pachet_ex13.tablou_imbricat;
+begin
+    -- PASUL 1: se adauga date in tabelele FILM, DIFUZEAZA, REZERVARI 
+    -- si se activeaza triggerul pt rezervari (se modif implicit si pct bonus din tabela CLIENTI)
+    pachet_ex13.adauga_film_rezervare; 
+    
+    --PASUL 2: determinarea clientului cu max pct bonus
+    --cod_client_max_pct_bonus := pachet_ex13.client_cu_max_puncte_bonus;
+    --dbms_output.put_line('Clientul avand codul '||cod_client_max_pct_bonus||
+        --' a obtinut numar maxim de puncta.');
+        
+    --PASUL 3: notificarea pentru clientul cu max pct bonus
+    --pachet_ex13.submit_notif_max_pct_bonus_job;
+    
+    -- PASUL 4: notificare pentru acordarea de recenzii
+    --pachet_ex13.submit_notif_recenzii;
+    
+    -- PASUL 5: adaugarea recenziilor
+    --v_clienti := pachet_ex13.clienti_care_dau_recenzii;
+    --pachet_ex13.adauga_recenzii(v_clienti);
+    
+    -- PASUL 6: afisarea clasamentului final al filmelor
+    --v_coduri_filme := pachet_ex13.topul_filmelor_coduri;
+    --pachet_ex13.afisare_top_filme(v_coduri_filme);
+end;
+/
+
+-- verificare PASUL 1
+select * from film;
+select * from rezervare;
+select * from clienti; -- pentru verificarea triggerului
+SELECT d.cod_cinematograf, 
+       d.cod_film, 
+       TO_CHAR(p.data_difuzare, 'DD-MM-YYYY') AS data_difuzare,
+       TO_CHAR(p.ora_inceput, 'HH24:MI') AS ora_inceput,
+       TO_CHAR(p.ora_final, 'HH24:MI') AS ora_final
+FROM difuzeaza d,
+     TABLE(d.perioade_difuzare) p;
+
+
+--Pasul 2
+declare
+    cod_client_max_pct_bonus number;
+    v_clienti pachet_ex13.vector_clienti;
+    v_coduri_filme pachet_ex13.tablou_imbricat;
+begin
+    -- PASUL 1: se adauga date in tabelele FILM, DIFUZEAZA, REZERVARI 
+    -- + se activeaza triggerul pt rezervari (se modif implicit si pct bonus din tabela CLIENTI)
+    --pachet_ex13.adauga_film_rezervare; 
+    
+    --PASUL 2: determinarea clientului cu max pct bonus
+    cod_client_max_pct_bonus := pachet_ex13.client_cu_max_puncte_bonus;
+    dbms_output.put_line('Clientul avand codul '||cod_client_max_pct_bonus||
+        ' a obtinut numar maxim de puncte.');
+        
+    --PASUL 3: notificarea pentru clientul cu max pct bonus
+    --pachet_ex13.submit_notif_max_pct_bonus_job;
+    
+    -- PASUL 4: notificare pentru acordarea de recenzii
+    --pachet_ex13.submit_notif_recenzii;
+    
+    -- PASUL 5: adaugarea recenziilor
+    --v_clienti := pachet_ex13.clienti_care_dau_recenzii;
+    --pachet_ex13.adauga_recenzii(v_clienti);
+    
+    -- PASUL 6: afisarea clasamentului final al filmelor
+    --v_coduri_filme := pachet_ex13.topul_filmelor_coduri;
+    --pachet_ex13.afisare_top_filme(v_coduri_filme);
+end;
+/
+
+
+--Pasul 3
+declare
+    cod_client_max_pct_bonus number;
+    v_clienti pachet_ex13.vector_clienti;
+    v_coduri_filme pachet_ex13.tablou_imbricat;
+begin
+    -- PASUL 1: se adauga date in tabelele FILM, DIFUZEAZA, REZERVARI 
+    -- + se activeaza triggerul pt rezervari (se modif implicit si pct bonus din tabela CLIENTI)
+    --pachet_ex13.adauga_film_rezervare; 
+    
+    --PASUL 2: determinarea clientului cu max pct bonus
+    --cod_client_max_pct_bonus := pachet_ex13.client_cu_max_puncte_bonus;
+    --dbms_output.put_line('Clientul avand codul '||cod_client_max_pct_bonus||
+       -- ' a obtinut numar maxim de puncte.');
+        
+    --PASUL 3: notificarea pentru clientul cu max pct bonus
+    pachet_ex13.submit_notif_max_pct_bonus_job;
+    
+    -- PASUL 4: notificare pentru acordarea de recenzii
+    --pachet_ex13.submit_notif_recenzii;
+    
+    -- PASUL 5: adaugarea recenziilor
+    --v_clienti := pachet_ex13.clienti_care_dau_recenzii;
+    --pachet_ex13.adauga_recenzii(v_clienti);
+    
+    -- PASUL 6: afisarea clasamentului final al filmelor
+    --v_coduri_filme := pachet_ex13.topul_filmelor_coduri;
+    --pachet_ex13.afisare_top_filme(v_coduri_filme);
+end;
+/
+
+-- verificare PASUL 3
+select job, next_date, what
+from user_jobs;
+
+begin
+    dbms_job.run(job => 74);
+end;
+/
+
+--Pasul 4
+declare
+    cod_client_max_pct_bonus number;
+    v_clienti pachet_ex13.vector_clienti;
+    v_coduri_filme pachet_ex13.tablou_imbricat;
+begin
+    -- PASUL 1: se adauga date in tabelele FILM, DIFUZEAZA, REZERVARI 
+    -- + se activeaza triggerul pt rezervari (se modif implicit si pct bonus din tabela CLIENTI)
+    --pachet_ex13.adauga_film_rezervare; 
+    
+    --PASUL 2: determinarea clientului cu max pct bonus
+    --cod_client_max_pct_bonus := pachet_ex13.client_cu_max_puncte_bonus;
+    --dbms_output.put_line('Clientul avand codul '||cod_client_max_pct_bonus||
+       -- ' a obtinut numar maxim de puncte.');
+        
+    --PASUL 3: notificarea pentru clientul cu max pct bonus
+    --pachet_ex13.submit_notif_max_pct_bonus_job;
+    
+  -- PASUL 4: notificare pentru acordarea de recenzii
+    pachet_ex13.submit_notif_recenzii;
+    
+    -- PASUL 5: adaugarea recenziilor
+    --v_clienti := pachet_ex13.clienti_care_dau_recenzii;
+    --pachet_ex13.adauga_recenzii(v_clienti);
+    
+    -- PASUL 6: afisarea clasamentului final al filmelor
+    --v_coduri_filme := pachet_ex13.topul_filmelor_coduri;
+    --pachet_ex13.afisare_top_filme(v_coduri_filme);
+end;
+/
+
+-- verificare PASUL 4
+select job, next_date, what
+from user_jobs;
+
+begin
+    dbms_job.run(job =>75);
+end;
+/
+
+--Pasul 5
+declare
+    cod_client_max_pct_bonus number;
+    v_clienti pachet_ex13.vector_clienti;
+    v_coduri_filme pachet_ex13.tablou_imbricat;
+begin
+    -- PASUL 1: se adauga date in tabelele FILM, DIFUZEAZA, REZERVARI 
+    -- + se activeaza triggerul pt rezervari (se modif implicit si pct bonus din tabela CLIENTI)
+    --pachet_ex13.adauga_film_rezervare; 
+    
+    --PASUL 2: determinarea clientului cu max pct bonus
+    --cod_client_max_pct_bonus := pachet_ex13.client_cu_max_puncte_bonus;
+    --dbms_output.put_line('Clientul avand codul '||cod_client_max_pct_bonus||
+       -- ' a obtinut numar maxim de puncte.');
+        
+    --PASUL 3: notificarea pentru clientul cu max pct bonus
+    --pachet_ex13.submit_notif_max_pct_bonus_job;
+    
+    -- PASUL 4: notificare pentru acordarea de recenzii
+    --pachet_ex13.submit_notif_recenzii;
+    
+    -- PASUL 5: adaugarea recenziilor
+    v_clienti := pachet_ex13.clienti_care_dau_recenzii;
+    pachet_ex13.adauga_recenzii(v_clienti);
+    
+    -- PASUL 6: afisarea clasamentului final al filmelor
+    --v_coduri_filme := pachet_ex13.topul_filmelor_coduri;
+    --pachet_ex13.afisare_top_filme(v_coduri_filme);
+end;
+/
+
+-- verificare PASUL 5
+-- initial in tabelul RECENZII erau 31 de randuri, acum sunt 44
+select * from recenzie;
+
+--Pasul 6
+declare
+    cod_client_max_pct_bonus number;
+    v_clienti pachet_ex13.vector_clienti;
+    v_coduri_filme pachet_ex13.tablou_imbricat;
+begin
+    -- PASUL 1: se adauga date in tabelele FILM, DIFUZEAZA, REZERVARI 
+    -- + se activeaza triggerul pt rezervari (se modif implicit si pct bonus din tabela CLIENTI)
+    --pachet_ex13.adauga_film_rezervare; 
+    
+    --PASUL 2: determinarea clientului cu max pct bonus
+    --cod_client_max_pct_bonus := pachet_ex13.client_cu_max_puncte_bonus;
+    --dbms_output.put_line('Clientul avand codul '||cod_client_max_pct_bonus||
+       -- ' a obtinut numar maxim de puncte.');
+        
+    --PASUL 3: notificarea pentru clientul cu max pct bonus
+    --pachet_ex13.submit_notif_max_pct_bonus_job;
+    
+    -- PASUL 4: notificare pentru acordarea de recenzii
+    --pachet_ex13.submit_notif_recenzii;
+    
+    -- PASUL 5: adaugarea recenziilor
+    --v_clienti := pachet_ex13.clienti_care_dau_recenzii;
+    --pachet_ex13.adauga_recenzii(v_clienti);
+    
+    -- PASUL 6: afisarea clasamentului final al filmelor
+    v_coduri_filme := pachet_ex13.topul_filmelor_coduri;
+    pachet_ex13.afisare_top_filme(v_coduri_filme);
+end;
+/
