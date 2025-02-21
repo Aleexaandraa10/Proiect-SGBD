@@ -14,10 +14,10 @@ Se vor înregistra informații despre:
 Angajații sunt organizați pe **departamente**, fiecare având un **singur job** și lucrând într-un **singur cinematograf**.  
 Pentru fiecare angajat se vor înregistra informații precum:  
 
-- 📌 **Status:** Activ, în concediu sau suspendat  
-- 📅 **Data angajării**  
-- 💰 **Salariul** – trebuie să se încadreze între valorile minime și maxime stabilite pentru postul respectiv  
-- 📈 **Nivelul de experiență necesar**  
+- ✔️ **Status:** Activ, în concediu sau suspendat  
+- ✔️ **Data angajării**  
+- ✔️ **Salariul** – trebuie să se încadreze între valorile minime și maxime stabilite pentru postul respectiv  
+- ✔️ **Nivelul de experiență necesar**  
 
 ---
 
@@ -27,8 +27,8 @@ Clienții cinematografelor pot face **mai multe rezervări** și beneficiază de
 
 ### **Sistemul de puncte:**  
 - Fiecare rezervare în valoare de **X lei** aduce **X puncte**.  
-- 🎁 **200 de lei** cheltuiți aduc o **reducere de 20 de lei** la următoarea rezervare.  
-- 🎬 Fiecare rezervare include **un singur film** ales de client.  
+  - **200 de lei** cheltuiți aduc o **reducere de 20 de lei** la următoarea rezervare.  
+- Fiecare rezervare include **un singur film** ales de client.  
 
 ### **Prețurile biletelor:**  
 - **2D** – 25 lei  
