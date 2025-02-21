@@ -2,7 +2,7 @@
 
   Baza de date va fi proiectată pentru a gestiona informații despre cinematografele din diverse orașe din România. Fiecare cinematograf este asociat unei adrese unice, care include detalii despre orașul în care se află. Se vor înregistra informații despre:
 ✔️ Capacitatea sălilor
-✔️ Compania care administrează cinematograful
+✔️ Compania care administrează cinematograful 
 
   Angajații sunt organizați pe departamente, fiecare având un singur job și lucrând într-un singur cinematograf.
 Pentru fiecare angajat se vor înregistra informații precum:
