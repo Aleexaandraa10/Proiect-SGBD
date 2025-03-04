@@ -1,59 +1,59 @@
-# Proiect-SGBD
+# **Database Management System - Cinema Project**  
 
-Baza de date va fi proiectată pentru a gestiona informații despre cinematografele din diverse orașe din România.  
-Fiecare cinematograf este asociat unei adrese unice, care include detalii despre orașul în care se află.  
+The database is designed to manage information about cinemas in various cities across Romania.  
+Each cinema is associated with a **unique address**, including details about the city it is located in.  
 
-Se vor înregistra informații despre:  
-✔️ **Capacitatea sălilor**  
-✔️ **Compania care administrează cinematograful**  
+The system will store information about:  
+✔️ **Hall capacities**  
+✔️ **The company managing the cinema**  
 
----
+---  
 
-## Angajații cinematografelor  
+## **Cinema Employees**  
 
-Angajații sunt organizați pe **departamente**, fiecare având un **singur job** și lucrând într-un **singur cinematograf**.  
-Pentru fiecare angajat se vor înregistra informații precum:  
+Employees are organized into **departments**, each having **a single job position** and working in **one cinema**.  
+For each employee, the system will record:  
 
-- ✔️ **Status:** Activ, în concediu sau suspendat  
-- ✔️ **Data angajării**  
-- ✔️ **Salariul** – trebuie să se încadreze între valorile minime și maxime stabilite pentru postul respectiv  
-- ✔️ **Nivelul de experiență necesar**  
+- ✔️ **Status:** Active, on leave, or suspended  
+- ✔️ **Hiring date**  
+- ✔️ **Salary** – must fall within the predefined minimum and maximum values for the given position  
+- ✔️ **Required experience level**  
 
----
+---  
 
-## Clienți și rezervări  
+## **Customers and Reservations**  
 
-Clienții cinematografelor pot face **mai multe rezervări** și beneficiază de reduceri printr-un **sistem de fidelizare** bazat pe puncte.  
+Cinema customers can make **multiple reservations** and benefit from **a loyalty system** based on points.  
 
-### **Sistemul de puncte:**  
-- Fiecare rezervare în valoare de **X lei** aduce **X puncte**.  
-  - **200 de lei** cheltuiți aduc o **reducere de 20 de lei** la următoarea rezervare.  
-- Fiecare rezervare include **un singur film** ales de client.  
+### **Points System:**  
+- Each reservation worth **X RON** earns **X points**.  
+  - Spending **200 RON** grants a **20 RON discount** on the next reservation.  
+- Each reservation includes **a single movie** selected by the customer.  
 
-### **Prețurile biletelor:**  
-- **2D** – 25 lei  
-- **3D** – 35 lei  
-- **IMAX** – 50 lei  
+### **Ticket Prices:**  
+- **2D** – 25 RON  
+- **3D** – 35 RON  
+- **IMAX** – 50 RON  
 
----
+---  
 
-## Programul cinematografelor  
+## **Cinema Scheduling**  
 
-Cinematografele vor afișa un **program detaliat al filmelor**, fiecare având:  
-✔️ **Opțiuni de subtitrare:** Cele mai frecvente fiind în română și engleză.  
-✔️ **Locuri disponibile în săli** și **perioada de difuzare organizată pe zile și intervale orare**.  
-✔️ **Restricție de vârstă** corespunzătoare fiecărui film.  
+Cinemas will display a **detailed schedule of movies**, with the following features:  
+✔️ **Subtitle options:** The most common being Romanian and English.  
+✔️ **Available seats** and **screening periods organized by days and time slots**.  
+✔️ **Age restrictions** based on the movie's content rating.  
 
----
+---  
 
-## Recenzii și evaluări  
+## **Reviews and Ratings**  
 
-Clienții pot oferi **recenzii** pentru filmele vizionate, contribuind la evaluări detaliate și relevante.  
+Customers can provide **reviews** for the movies they watch, contributing to a **relevant and detailed rating system**.  
 
----
+---  
 
-## Scopul sistemului  
+## **System Goals**  
 
-✔️ **Oferirea unei experiențe eficiente și personalizate**  
-✔️ **Administrarea optimă a cinematografelor**  
-✔️ **Creșterea satisfacției clienților**  
+✔️ **Provide an efficient and personalized user experience**  
+✔️ **Optimize cinema management**  
+✔️ **Increase customer satisfaction**
